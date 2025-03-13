@@ -1,23 +1,49 @@
 #include <iostream>
 #include <string>
+#include <vector>
 
-static bool hadErr = false;
+#include "lexical_analysis/lexer.hpp"
+#include "utils/error_handler.hpp"
 
-void runPrompt() {
+Utils::ErrorHandler errorHandler;
+
+void run(std::string src) {
+    Lexer lexer = Lexer(src, errorHandler);
+    std::vector<Token> tokens = lexer.scanTokens();
+
+    for (auto it = tokens.begin(); it != tokens.end(); ++it) {
+        std::cout << it->stringifyType() << " " << it->lexeme_ << " " << std::endl;
+    }
+}
+
+void runRepl() {
     std::string input;
 
     while (true) {
         std::cout << "> ";
         std::cin >> input;
-        if (input.empty())
-            break;
 
-        std::cout << input << std::endl;
+        run(input);
+        errorHandler.hadError_ = false;
     }
 }
 
-int main() {
-    runPrompt();
+void runFile(char* filePath) {
+    std::cout << "File input not yet suupported!" << std::endl;
+}
+
+int main(int argc, char* argv[]) {
+    switch (argc) {
+        case 1:
+            runRepl();
+            break;
+        case 2:
+            runFile(argv[0]);
+            break;
+        default:
+            std::cout << "Usage: ./latimer [file_path]" << std::endl;
+            return 64;   
+    }
 
     return 0;
 }
