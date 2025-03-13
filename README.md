@@ -11,7 +11,7 @@ Statically-typed interpreted scripting language
 ### Lexical Analysis
 - [x] build error handler
 - [x] build lexer
-- [ ] change reserved keywords ("NIL" -> NULL, remove "VAR")
+- [x] change reserved keywords ("NIL" -> NULL, remove "VAR")
 
 ### Parsing
 - [ ] create document for defining grammar

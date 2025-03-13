@@ -25,8 +25,13 @@ Lexer::Lexer(std::string src, Utils::ErrorHandler& errorHandler)
     keywords_.insert({"super",  TokenType::SUPER});
     keywords_.insert({"this",   TokenType::THIS});
     keywords_.insert({"true",   TokenType::TRUE_});
-    keywords_.insert({"var",    TokenType::VAR});
     keywords_.insert({"while",  TokenType::WHILE});
+    keywords_.insert({"bool",   TokenType::BOOL_TY});
+    keywords_.insert({"int",    TokenType::INT_TY});
+    keywords_.insert({"float",  TokenType::FLOAT_TY});
+    keywords_.insert({"char",   TokenType::CHAR_TY});
+    keywords_.insert({"string", TokenType::STRING_TY});
+
 }
 
 std::vector<Token> Lexer::scanTokens() {
@@ -52,7 +57,7 @@ void Lexer::addToken(TokenType type) {
 }
 
 void Lexer::addToken(TokenType type, std::any literal) {
-    std::string text = src_.substr(start_, current_);
+    std::string text = src_.substr(start_, current_ - start_);
     tokens_.emplace_back(type, text, literal, line_);
 }
 
@@ -82,7 +87,7 @@ void Lexer::string() {
 
     advance();
 
-    std::string value = src_.substr(start_+1, current_-1);
+    std::string value = src_.substr(start_+1, current_ - start_ - 1);
     addToken(TokenType::STRING, value);
 }
 
@@ -104,7 +109,7 @@ void Lexer::number() {
         while (isDigit(peek())) advance();
     }
 
-    addToken(TokenType::NUMBER, std::stoi(src_.substr(start_, current_)));
+    addToken(TokenType::NUMBER, std::stoi(src_.substr(start_, current_ - start_)));
 }
 
 bool Lexer::isAlpha(char c) {
@@ -118,9 +123,12 @@ bool Lexer::isAlphaNumeric(char c) {
 }
 
 void Lexer::identifier() {
-    while (isAlphaNumeric(peek())) advance();
+    while (isAlphaNumeric(peek())) {
+        std::cout << peek() << std::endl;
+        advance();
+    }
 
-    std::string text = src_.substr(start_, current_);
+    std::string text = src_.substr(start_, current_ - start_);
     auto type = keywords_.find(text);
     if (type != keywords_.end())
         addToken(type->second);

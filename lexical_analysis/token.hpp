@@ -20,7 +20,10 @@ enum class TokenType : uint8_t {
 
     // Keywords
     AND = 23, CLASS = 24, ELSE = 25, FALSE_ = 26, FUN = 27, FOR = 28, IF = 29, NIL = 30, OR = 31,
-    PRINT = 32, RETURN = 33, SUPER = 34, THIS = 35, TRUE_ = 36, VAR = 37, WHILE = 38,
+    PRINT = 32, RETURN = 33, SUPER = 34, THIS = 35, TRUE_ = 36, WHILE = 37,
+
+    // Types
+    BOOL_TY = 38, INT_TY = 39, FLOAT_TY = 40, CHAR_TY = 41, STRING_TY = 42,
 
     END_OF_FILE,
 };
@@ -71,8 +74,12 @@ struct Token {
             case TokenType::SUPER: return "SUPER";
             case TokenType::THIS: return "THIS";
             case TokenType::TRUE_: return "TRUE";
-            case TokenType::VAR: return "VAR";
             case TokenType::WHILE: return "WHILE";
+            case TokenType::BOOL_TY: return "BOOL_TY";
+            case TokenType::INT_TY: return "INT_TY";
+            case TokenType::FLOAT_TY: return "FLOAT_TY";
+            case TokenType::CHAR_TY: return "CHAR_TY";
+            case TokenType::STRING_TY: return "STRING_TY";
             case TokenType::END_OF_FILE: return "END_OF_FILE";
         }
 
