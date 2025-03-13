@@ -6,6 +6,7 @@ Statically-typed interpreted scripting language
 
 ### MAIN
 [] read user input one line at a time (currently reading by spaces)
+[] support taking in files
 
 ### Lexical Analysis
 [] build error handler
