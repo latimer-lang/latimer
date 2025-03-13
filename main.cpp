@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sstream>
+#include <fstream>
 
 #include "lexical_analysis/lexer.hpp"
 #include "utils/error_handler.hpp"
@@ -28,8 +30,19 @@ void runRepl() {
     }
 }
 
-void runFile(char* filePath) {
-    std::cout << "File input not yet supported!" << std::endl;
+void runFile(std::string filePath) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        std::cerr << "Unable to open file";
+        std::exit(-1);
+    }
+
+    std::stringstream buf;
+    buf << file.rdbuf();
+    run(buf.str());
+
+    if (errorHandler.hadError_)
+        std::exit(65);
 }
 
 int main(int argc, char* argv[]) {
@@ -38,7 +51,7 @@ int main(int argc, char* argv[]) {
             runRepl();
             break;
         case 2:
-            runFile(argv[0]);
+            runFile(std::string(argv[1]));
             break;
         default:
             std::cout << "Usage: ./latimer [file_path]" << std::endl;
