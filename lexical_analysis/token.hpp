@@ -2,6 +2,7 @@
 
 #include <string>
 #include <any>
+#include <typeinfo>
 
 #include "../utils/macros.hpp"
 
@@ -77,5 +78,12 @@ struct Token {
 
         UNREACHABLE_CODE
         return "";
+    }
+
+    std::string stringifyLiteral() {
+        if (literal_.type() == typeid(int)) return std::to_string(std::any_cast<int>(literal_));
+        else if (literal_.type() == typeid(double)) return std::to_string(std::any_cast<double>(literal_));
+        else if (literal_.type() == typeid(std::string)) return std::any_cast<std::string>(literal_);
+        else return "NULL";
     }
 };

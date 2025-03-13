@@ -121,7 +121,7 @@ void Lexer::identifier() {
     while (isAlphaNumeric(peek())) advance();
 
     std::string text = src_.substr(start_, current_);
-    auto type = keywords_.find(const_cast<std::string&>(text));
+    auto type = keywords_.find(text);
     if (type != keywords_.end())
         addToken(type->second);
     else

@@ -12,7 +12,7 @@ void run(std::string src) {
     std::vector<Token> tokens = lexer.scanTokens();
 
     for (auto it = tokens.begin(); it != tokens.end(); ++it) {
-        std::cout << it->stringifyType() << " " << it->lexeme_ << " " << std::endl;
+        std::cout << it->stringifyType() << " " << it->lexeme_ << " " << it->stringifyLiteral() << std::endl;
     }
 }
 
@@ -21,7 +21,7 @@ void runRepl() {
 
     while (true) {
         std::cout << "> ";
-        std::cin >> input;
+        std::getline(std::cin, input);
 
         run(input);
         errorHandler.hadError_ = false;
@@ -29,7 +29,7 @@ void runRepl() {
 }
 
 void runFile(char* filePath) {
-    std::cout << "File input not yet suupported!" << std::endl;
+    std::cout << "File input not yet supported!" << std::endl;
 }
 
 int main(int argc, char* argv[]) {

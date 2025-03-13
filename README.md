@@ -5,12 +5,12 @@ Statically-typed interpreted scripting language
 ## TODOS
 
 ### MAIN
-[] read user input one line at a time (currently reading by spaces)
+[*] read user input one line at a time (currently reading by spaces)
 [] support taking in files
 
 ### Lexical Analysis
-[] build error handler
-[] build lexer
+[*] build error handler
+[*] build lexer
 [] change reserved keywords ("NIL" -> NULL, remove "VAR")
 
 ### Parsing
