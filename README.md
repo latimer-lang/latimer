@@ -14,7 +14,9 @@ Statically-typed interpreted scripting language
 - [x] change reserved keywords ("NIL" -> NULL, remove "VAR")
 
 ### Parsing
-- [ ] create document for defining grammar
+- [ ] create document for defining grammar for expressions
+- [ ] AST classes
+- [ ] implement AST pretty printer for debugging
 
 ### Semantic Analysis
 
