@@ -1,29 +1,63 @@
 #pragma once
 
-#include <string>
 #include <any>
+#include <string>
 #include <typeinfo>
 
 #include "../utils/macros.hpp"
 
 enum class TokenType : uint8_t {
     // Single-character tokens
-    LEFT_PAREN = 1, RIGHT_PAREN = 2, LEFT_BRACE = 3, RIGHT_BRACE = 4,
-    COMMA = 5, DOT = 6, MINUS = 7, PLUS = 8, SEMICOLON = 9, SLASH = 10, STAR = 11,
+    LEFT_PAREN = 1,
+    RIGHT_PAREN = 2,
+    LEFT_BRACE = 3,
+    RIGHT_BRACE = 4,
+    COMMA = 5,
+    DOT = 6,
+    MINUS = 7,
+    PLUS = 8,
+    SEMICOLON = 9,
+    SLASH = 10,
+    STAR = 11,
 
     // One/two-character tokens
-    BANG = 12, BANG_EQUAL = 13, EQUAL = 14, EQUAL_EQUAL = 15, GREATER = 16,
-    GREATER_EQUAL = 17, LESS = 18, LESS_EQUAL = 19,
+    BANG = 12,
+    BANG_EQUAL = 13,
+    EQUAL = 14,
+    EQUAL_EQUAL = 15,
+    GREATER = 16,
+    GREATER_EQUAL = 17,
+    LESS = 18,
+    LESS_EQUAL = 19,
 
     // Literals
-    IDENTIFIER = 20, STRING = 21, NUMBER = 22,
+    IDENTIFIER = 20,
+    STRING = 21,
+    NUMBER = 22,
 
     // Keywords
-    AND = 23, CLASS = 24, ELSE = 25, FALSE_ = 26, FUN = 27, FOR = 28, IF = 29, NIL = 30, OR = 31,
-    PRINT = 32, RETURN = 33, SUPER = 34, THIS = 35, TRUE_ = 36, WHILE = 37,
+    AND = 23,
+    CLASS = 24,
+    ELSE = 25,
+    FALSE_ = 26,
+    FUN = 27,
+    FOR = 28,
+    IF = 29,
+    NIL = 30,
+    OR = 31,
+    PRINT = 32,
+    RETURN = 33,
+    SUPER = 34,
+    THIS = 35,
+    TRUE_ = 36,
+    WHILE = 37,
 
     // Types
-    BOOL_TY = 38, INT_TY = 39, FLOAT_TY = 40, CHAR_TY = 41, STRING_TY = 42,
+    BOOL_TY = 38,
+    INT_TY = 39,
+    FLOAT_TY = 40,
+    CHAR_TY = 41,
+    STRING_TY = 42,
 
     END_OF_FILE,
 };
@@ -34,9 +68,14 @@ struct Token {
     std::any literal_;
     int line_;
 
-    Token(TokenType type, std::string lexeme, std::any literal, int line) : type_(type), lexeme_(lexeme), literal_(literal), line_(line) {}
+    Token(TokenType type, std::string lexeme, std::any literal, int line)
+        : type_(type)
+        , lexeme_(lexeme)
+        , literal_(literal)
+        , line_(line) {}
 
     std::string stringifyType() {
+        // clang-format off
         switch (type_) {
             case TokenType::LEFT_PAREN: return "LEFT_PAREN";
             case TokenType::RIGHT_PAREN: return "RIGHT_PAREN";
@@ -82,15 +121,20 @@ struct Token {
             case TokenType::STRING_TY: return "STRING_TY";
             case TokenType::END_OF_FILE: return "END_OF_FILE";
         }
+        // clang-format on
 
         UNREACHABLE_CODE
         return "";
     }
 
     std::string stringifyLiteral() {
-        if (literal_.type() == typeid(int)) return std::to_string(std::any_cast<int>(literal_));
-        else if (literal_.type() == typeid(double)) return std::to_string(std::any_cast<double>(literal_));
-        else if (literal_.type() == typeid(std::string)) return std::any_cast<std::string>(literal_);
-        else return "NULL";
+        if (literal_.type() == typeid(int))
+            return std::to_string(std::any_cast<int>(literal_));
+        else if (literal_.type() == typeid(double))
+            return std::to_string(std::any_cast<double>(literal_));
+        else if (literal_.type() == typeid(std::string))
+            return std::any_cast<std::string>(literal_);
+        else
+            return "NULL";
     }
 };

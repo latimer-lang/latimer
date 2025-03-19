@@ -1,8 +1,8 @@
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
-#include <fstream>
 
 #include "lexical_analysis/lexer.hpp"
 #include "utils/error_handler.hpp"
@@ -14,7 +14,8 @@ void run(std::string src) {
     std::vector<Token> tokens = lexer.scanTokens();
 
     for (auto it = tokens.begin(); it != tokens.end(); ++it) {
-        std::cout << it->stringifyType() << " " << it->lexeme_ << " " << it->stringifyLiteral() << std::endl;
+        std::cout << it->stringifyType() << " " << it->lexeme_ << " " << it->stringifyLiteral()
+                  << std::endl;
     }
 }
 
@@ -41,8 +42,7 @@ void runFile(std::string filePath) {
     buf << file.rdbuf();
     run(buf.str());
 
-    if (errorHandler.hadError_)
-        std::exit(65);
+    if (errorHandler.hadError_) std::exit(65);
 }
 
 int main(int argc, char* argv[]) {
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
             break;
         default:
             std::cout << "Usage: ./latimer [file_path]" << std::endl;
-            return 64;   
+            return 64;
     }
 
     return 0;

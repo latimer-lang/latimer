@@ -8,7 +8,8 @@ struct ErrorHandler {
 public:
     bool hadError_;
 
-    ErrorHandler() : hadError_(false) {}
+    ErrorHandler()
+        : hadError_(false) {}
 
     void report(int line, std::string where, std::string msg) {
         std::cerr << "[line " << line << "] Error " << where << ": " + msg << std::endl;

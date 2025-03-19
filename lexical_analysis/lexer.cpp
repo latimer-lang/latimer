@@ -4,13 +4,14 @@
 
 #include "token.hpp"
 
-Lexer::Lexer(std::string src, Utils::ErrorHandler& errorHandler) 
-    : src_(src), 
-    tokens_(), 
-    start_(0), 
-    current_(0), 
-    line_(1), 
-    errorHandler_(errorHandler) {
+Lexer::Lexer(std::string src, Utils::ErrorHandler& errorHandler)
+    : src_(src)
+    , tokens_()
+    , start_(0)
+    , current_(0)
+    , line_(1)
+    , errorHandler_(errorHandler) {
+    // clang-format off
     keywords_.insert({"and",    TokenType::AND});
     keywords_.insert({"class",  TokenType::CLASS});
     keywords_.insert({"else",   TokenType::ELSE});
@@ -31,7 +32,7 @@ Lexer::Lexer(std::string src, Utils::ErrorHandler& errorHandler)
     keywords_.insert({"float",  TokenType::FLOAT_TY});
     keywords_.insert({"char",   TokenType::CHAR_TY});
     keywords_.insert({"string", TokenType::STRING_TY});
-
+    // clang-format on
 }
 
 std::vector<Token> Lexer::scanTokens() {
@@ -87,7 +88,7 @@ void Lexer::string() {
 
     advance();
 
-    std::string value = src_.substr(start_+1, current_ - start_ - 1);
+    std::string value = src_.substr(start_ + 1, current_ - start_ - 1);
     addToken(TokenType::STRING, value);
 }
 
@@ -96,7 +97,7 @@ bool Lexer::isDigit(char c) {
 }
 
 char Lexer::peekNext() {
-    if (current_ + 1 >= src_.length()) return '\0'; 
+    if (current_ + 1 >= src_.length()) return '\0';
     return src_.at(current_ + 1);
 }
 
@@ -113,9 +114,7 @@ void Lexer::number() {
 }
 
 bool Lexer::isAlpha(char c) {
-    return (c >= 'a' && c <= 'z') ||
-        (c >= 'A' && c <= 'Z') ||
-        c == '_';
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 
 bool Lexer::isAlphaNumeric(char c) {
@@ -139,17 +138,37 @@ void Lexer::identifier() {
 void Lexer::scanToken() {
     char c = advance();
 
-    switch(c) {
-        case '(': addToken(TokenType::LEFT_PAREN); break;
-        case ')': addToken(TokenType::RIGHT_PAREN); break;
-        case '{': addToken(TokenType::LEFT_BRACE); break;
-        case '}': addToken(TokenType::RIGHT_BRACE); break;
-        case ',': addToken(TokenType::COMMA); break;
-        case '.': addToken(TokenType::DOT); break;
-        case '-': addToken(TokenType::MINUS); break;
-        case '+': addToken(TokenType::PLUS); break;
-        case ';': addToken(TokenType::SEMICOLON); break;
-        case '*': addToken(TokenType::STAR); break;
+    switch (c) {
+        case '(':
+            addToken(TokenType::LEFT_PAREN);
+            break;
+        case ')':
+            addToken(TokenType::RIGHT_PAREN);
+            break;
+        case '{':
+            addToken(TokenType::LEFT_BRACE);
+            break;
+        case '}':
+            addToken(TokenType::RIGHT_BRACE);
+            break;
+        case ',':
+            addToken(TokenType::COMMA);
+            break;
+        case '.':
+            addToken(TokenType::DOT);
+            break;
+        case '-':
+            addToken(TokenType::MINUS);
+            break;
+        case '+':
+            addToken(TokenType::PLUS);
+            break;
+        case ';':
+            addToken(TokenType::SEMICOLON);
+            break;
+        case '*':
+            addToken(TokenType::STAR);
+            break;
         case '!':
             addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG);
             break;
@@ -163,10 +182,12 @@ void Lexer::scanToken() {
             addToken(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER);
             break;
         case '/':
-            if (match('/')) while (peek() != '\n' && !isAtEnd()) advance();
-            else addToken(TokenType::SLASH);
+            if (match('/'))
+                while (peek() != '\n' && !isAtEnd()) advance();
+            else
+                addToken(TokenType::SLASH);
             break;
-        case ' ': // Ignore whitespaces
+        case ' ':  // Ignore whitespaces
         case '\r': // Ignore whitespaces
         case '\t': // Ignore whitespaces
             break;
@@ -177,9 +198,12 @@ void Lexer::scanToken() {
             string();
             break;
         default:
-            if (isDigit(c)) number();
-            else if (isAlpha(c)) identifier();
-            else errorHandler_.error(line_, "Unexpected character.");
+            if (isDigit(c))
+                number();
+            else if (isAlpha(c))
+                identifier();
+            else
+                errorHandler_.error(line_, "Unexpected character.");
             break;
     }
 }
