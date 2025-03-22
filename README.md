@@ -35,8 +35,9 @@ clang-format -i **/*.cpp **/*.hpp
 
 ### Parsing
 - [x] create document for defining grammar for expressions
-- [ ] AST classes
-- [ ] implement AST pretty printer for debugging
+- [x] AST classes for expressions
+- [ ] AST classes for statements, and other things
+- [x] implement AST pretty printer for debugging
 - [ ] watch out when parsing `else if`
 
 ### Semantic Analysis
