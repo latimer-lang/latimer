@@ -19,7 +19,7 @@ Lexer::Lexer(std::string src, Utils::ErrorHandler& errorHandler)
     keywords_.insert({"for",    TokenType::FOR});
     keywords_.insert({"fun",    TokenType::FUN});
     keywords_.insert({"if",     TokenType::IF});
-    keywords_.insert({"nil",    TokenType::NIL});
+    keywords_.insert({"null",   TokenType::NIL});
     keywords_.insert({"or",     TokenType::OR});
     keywords_.insert({"print",  TokenType::PRINT});
     keywords_.insert({"return", TokenType::RETURN});
@@ -123,7 +123,6 @@ bool Lexer::isAlphaNumeric(char c) {
 
 void Lexer::identifier() {
     while (isAlphaNumeric(peek())) {
-        std::cout << peek() << std::endl;
         advance();
     }
 

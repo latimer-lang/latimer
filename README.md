@@ -1,6 +1,15 @@
 # Latimer
 
-Statically-typed interpreted scripting language
+A general-purpose statically-typed interpreted language designed for efficiency, safety, and developer productivity.
+
+## Compiling the Compiler
+
+```bash
+# assuming you are in the root directory
+cmake -S . -B build
+# -S . -> source directory is the current directory (aka the root)
+# -B build -> build output goes into the build directory (which you should have created)
+```
 
 ## TODOS
 

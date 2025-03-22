@@ -11,7 +11,9 @@ expression → literal
 ## Literals
 ```
 literal → NUMBER
+        | FLOAT
         | STRING
+        | CHAR
         | "true"
         | "false"
         | "NULL"

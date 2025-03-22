@@ -32,5 +32,4 @@
 *.app
 
 # Build files
-/build/*
-!/build/CMakeLists.txt
+/build

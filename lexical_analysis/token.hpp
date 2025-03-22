@@ -134,6 +134,8 @@ struct Token {
             return std::to_string(std::any_cast<double>(literal_));
         else if (literal_.type() == typeid(std::string))
             return std::any_cast<std::string>(literal_);
+        else if (literal_.type() == typeid(bool))
+            return std::to_string(std::any_cast<bool>(literal_));
         else
             return "NULL";
     }
