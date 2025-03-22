@@ -3,11 +3,14 @@ project(latimer)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(ROOT ${CMAKE_SOURCE_DIR})
 
-file(GLOB LEXICAL "${ROOT}/lexical_analysis/*.hpp" "${ROOT}/lexical_analysis/*.cpp")
-file(GLOB PARSING "${ROOT}/ast/*.hpp" "${ROOT}/ast/*.cpp")
-file(GLOB UTILS "${ROOT}/utils/*.hpp" "${ROOT}/utils/*.cpp")
-file(GLOB main "${ROOT}/main.cpp")
+# .cpp source files in src/
+file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
+    ${CMAKE_SOURCE_DIR}/src/*.cpp
+)
 
-add_executable(latimer ${LEXICAL} ${PARSING} ${UTILS} ${main})
+add_executable(latimer ${SRC_FILES})
+
+# .hpp header files in include/
+# only adds them to the latimer binary
+target_include_directories(latimer PRIVATE ${CMAKE_SOURCE_DIR}/include)

@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-#include "ast/ast.hpp"
-#include "lexical_analysis/lexer.hpp"
-#include "utils/ast_printer.hpp"
-#include "utils/error_handler.hpp"
+#include "latimer/ast/ast.hpp"
+#include "latimer/lexical_analysis/lexer.hpp"
+#include "latimer/utils/ast_printer.hpp"
+#include "latimer/utils/error_handler.hpp"
 
 Utils::ErrorHandler errorHandler;
 
