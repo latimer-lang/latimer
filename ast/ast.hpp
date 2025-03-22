@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "../lexical_analysis/token.hpp"
 
 class AstVisitor;
@@ -16,6 +18,8 @@ class AstExpr : public AstNode {
 public:
     explicit AstExpr(int line)
         : AstNode(line) {}
+
+    virtual ~AstExpr() = default;
 
     virtual void accept(AstVisitor& visitor) = 0;
 };
@@ -78,7 +82,7 @@ class AstExprLiteralNull : public AstExpr {
 public:
     explicit AstExprLiteralNull(int line)
         : AstExpr(line) {}
-        
+
     void accept(AstVisitor& visitor) override;
 };
 
@@ -139,6 +143,8 @@ public:
 
 class AstVisitor {
 public:
+    std::string result_;
+
     ~AstVisitor() = default;
 
     virtual void visitGroupExpr(AstExprGroup& expr) = 0;

@@ -11,6 +11,13 @@ cmake -S . -B build
 # -B build -> build output goes into the build directory (which you should have created)
 ```
 
+## Code Style
+
+Run the clang-format on all files
+```bash
+clang-format -i **/*.cpp **/*.hpp
+```
+
 ## TODOS
 
 ### DOC

@@ -4,7 +4,9 @@
 #include <string>
 #include <vector>
 
+#include "ast/ast.hpp"
 #include "lexical_analysis/lexer.hpp"
+#include "utils/ast_printer.hpp"
 #include "utils/error_handler.hpp"
 
 Utils::ErrorHandler errorHandler;
@@ -46,6 +48,23 @@ void runFile(std::string filePath) {
 }
 
 int main(int argc, char* argv[]) {
+
+    // For testing AST printer
+    Token minus(TokenType::MINUS, "-", NULL, 1);
+    AstExprLiteralInt one_two_three(1, 123);
+    AstExprUnary negative_one_two_three(1, minus, one_two_three);
+
+    Token multiply(TokenType::STAR, "*", NULL, 1);
+
+    AstExprLiteralFloat forth_five_point(1, 44.67);
+    AstExprGroup paren(1, forth_five_point);
+
+    AstExpr* expr = new AstExprBinary(1, negative_one_two_three, multiply, forth_five_point);
+
+    AstPrinter prettyPrinter;
+    std::cout << "Testing pretty printer:\n" << prettyPrinter.print(*expr) << std::endl;
+    // End of testing AST printer
+
     switch (argc) {
         case 1:
             runRepl();
