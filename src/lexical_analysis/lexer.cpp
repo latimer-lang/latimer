@@ -150,7 +150,11 @@ void Lexer::number() {
         while (isDigit(peek())) advance();
     }
 
-    addToken(TokenType::NUMBER_LIT, std::stoi(src_.substr(start_, current_ - start_)));
+    std::string value = src_.substr(start_, current_ - start_);
+    if (value.find('.') != std::string::npos)
+        addToken(TokenType::FLOAT_LIT, std::stof(value));
+    else
+        addToken(TokenType::INTEGER_LIT, std::stoi(value));
 }
 
 bool Lexer::isAlpha(char c) {
@@ -168,8 +172,10 @@ void Lexer::identifier() {
 
     std::string text = src_.substr(start_, current_ - start_);
     auto type = keywords_.find(text);
-    if (type == keywords_.end()) 
+    if (type == keywords_.end()) {
         addToken(TokenType::IDENTIFIER);
+        return;
+    }
     
     if (type->second == TokenType::TRUE_LIT)
         addToken(type->second, true);

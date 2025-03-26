@@ -47,29 +47,30 @@ enum class TokenType : uint8_t {
     // Literals
     CHARACTER_LIT = 32,
     STRING_LIT = 33,
-    NUMBER_LIT = 34, // includes int, float
-    TRUE_LIT = 35,
-    FALSE_LIT = 36,
+    INTEGER_LIT = 34,
+    FLOAT_LIT = 35,
+    TRUE_LIT = 36,
+    FALSE_LIT = 37,
 
     // Keywords
-    CLASS = 37,
-    ELSE = 38,
-    FOR = 39,
-    IF = 40,
-    NIL = 41,
-    PRINT = 42,
-    RETURN = 43,
-    SUPER = 44,
-    THIS = 45,
-    WHILE = 46,
+    CLASS = 38,
+    ELSE = 39,
+    FOR = 40,
+    IF = 41,
+    NIL = 42,
+    PRINT = 43,
+    RETURN = 44,
+    SUPER = 45,
+    THIS = 46,
+    WHILE = 47,
 
     // Types
-    BOOL_TY = 47,
-    INT_TY = 48,
-    FLOAT_TY = 49,
-    CHAR_TY = 50,
-    STRING_TY = 51,
-    VOID_TY = 52, // for function return types
+    BOOL_TY = 48,
+    INT_TY = 49,
+    FLOAT_TY = 50,
+    CHAR_TY = 51,
+    STRING_TY = 52,
+    VOID_TY = 53, // for function return types
 
     END_OF_FILE,
 };
@@ -122,7 +123,8 @@ struct Token {
             case TokenType::IDENTIFIER: return "IDENTIFIER";
             case TokenType::CHARACTER_LIT: return "CHARACTER_LIT";
             case TokenType::STRING_LIT: return "STRING_LIT";
-            case TokenType::NUMBER_LIT: return "NUMBER_LIT";
+            case TokenType::INTEGER_LIT: return "INTEGER_LIT";
+            case TokenType::FLOAT_LIT: return "FLOAT_LIT";
             case TokenType::TRUE_LIT: return "TRUE_LIT";
             case TokenType::FALSE_LIT: return "FALSE_LIT";
             case TokenType::CLASS: return "CLASS";
@@ -152,8 +154,8 @@ struct Token {
     std::string stringifyLiteral() {
         if (literal_.type() == typeid(int))
             return std::to_string(std::any_cast<int>(literal_));
-        else if (literal_.type() == typeid(double))
-            return std::to_string(std::any_cast<double>(literal_));
+        else if (literal_.type() == typeid(float))
+            return std::to_string(std::any_cast<float>(literal_));
         else if (literal_.type() == typeid(std::string))
             return std::any_cast<std::string>(literal_);
         else if (literal_.type() == typeid(bool))
