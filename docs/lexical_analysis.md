@@ -1,5 +1,8 @@
-# Expression Grammar
-This section consists of Context-Free Grammar for all types of expressions supported by Latimer.
+# Introduction
+This doc contains notes used to create Latimer's lexer.
+
+# Expressions
+This section consists of Context-Free Grammar for all types of expressions in Latimer.
 ```
 expression → literal
             | group
