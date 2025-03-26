@@ -4,7 +4,7 @@
 
 #include "latimer/ast/ast.hpp"
 
-class AstPrinter : AstVisitor {
+class AstPrinter : public AstVisitor {
 public:
     std::string print(AstExpr& expr) {
         expr.accept(*this);
@@ -12,20 +12,20 @@ public:
     }
 
     void visitGroupExpr(AstExprGroup& expr) override {
-        result_ = "(group " + print(expr.expr_) + ")";
+        result_ = "(group " + print(*expr.expr_) + ")";
     }
 
     void visitUnaryExpr(AstExprUnary& expr) override {
-        result_ = "(" + expr.op_.lexeme_ + " " + print(expr.right_) + ")";
+        result_ = "(" + expr.op_.lexeme_ + " " + print(*expr.right_) + ")";
     }
 
     void visitBinaryExpr(AstExprBinary& expr) override {
-        result_ = "(" + expr.op_.lexeme_ + " " + print(expr.left_) + " " + print(expr.right_) + ")";
+        result_ = "(" + expr.op_.lexeme_ + " " + print(*expr.left_) + " " + print(*expr.right_) + ")";
     }
 
     void visitTernaryExpr(AstExprTernary& expr) override {
-        result_ = "(?: " + print(expr.condition_) + " " + print(expr.thenBranch_) + " " +
-                  print(expr.elseBranch_) + ")";
+        result_ = "(?: " + print(*expr.condition_) + " " + print(*expr.thenBranch_) + " " +
+                  print(*expr.elseBranch_) + ")";
     }
 
     void visitLiteralNullExpr(AstExprLiteralNull& expr) override {

@@ -1,10 +1,14 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 #include "latimer/lexical_analysis/token.hpp"
 
 class AstVisitor;
+class AstExpr;
+
+using AstExprPtr = std::unique_ptr<AstExpr>;
 
 class AstNode {
 public:
@@ -26,54 +30,54 @@ public:
 
 class AstExprGroup : public AstExpr {
 public:
-    AstExpr& expr_;
+    AstExprPtr expr_;
 
-    explicit AstExprGroup(int line, AstExpr& expr)
+    explicit AstExprGroup(int line, AstExprPtr expr)
         : AstExpr(line)
-        , expr_(expr) {}
+        , expr_(std::move(expr)) {}
 
     void accept(AstVisitor& visitor) override;
 };
 
 class AstExprUnary : public AstExpr {
 public:
-    Token& op_;
-    AstExpr& right_;
+    Token op_;
+    AstExprPtr right_;
 
-    explicit AstExprUnary(int line, Token& op, AstExpr& right)
+    explicit AstExprUnary(int line, Token op, AstExprPtr right)
         : AstExpr(line)
         , op_(op)
-        , right_(right) {}
+        , right_(std::move(right)) {}
 
     void accept(AstVisitor& visitor) override;
 };
 
 class AstExprBinary : public AstExpr {
 public:
-    AstExpr& left_;
-    Token& op_;
-    AstExpr& right_;
+    AstExprPtr left_;
+    Token op_;
+    AstExprPtr right_;
 
-    explicit AstExprBinary(int line, AstExpr& left, Token& op, AstExpr& right)
+    explicit AstExprBinary(int line, AstExprPtr left, Token op, AstExprPtr right)
         : AstExpr(line)
-        , left_(left)
+        , left_(std::move(left))
         , op_(op)
-        , right_(right) {}
+        , right_(std::move(right)) {}
 
     void accept(AstVisitor& visitor) override;
 };
 
 class AstExprTernary : public AstExpr {
 public:
-    AstExpr& condition_;
-    AstExpr& thenBranch_;
-    AstExpr& elseBranch_;
+    AstExprPtr condition_;
+    AstExprPtr thenBranch_;
+    AstExprPtr elseBranch_;
 
-    explicit AstExprTernary(int line, AstExpr& condition, AstExpr& thenBranch, AstExpr& elseBranch)
+    explicit AstExprTernary(int line, AstExprPtr condition, AstExprPtr thenBranch, AstExprPtr elseBranch)
         : AstExpr(line)
-        , condition_(condition)
-        , thenBranch_(thenBranch)
-        , elseBranch_(elseBranch) {}
+        , condition_(std::move(condition))
+        , thenBranch_(std::move(thenBranch))
+        , elseBranch_(std::move(elseBranch)) {}
 
     void accept(AstVisitor& visitor) override;
 };
