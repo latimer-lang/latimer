@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "../lexical_analysis/token.hpp"
+#include "latimer/lexical_analysis/token.hpp"
 
 class AstVisitor;
 

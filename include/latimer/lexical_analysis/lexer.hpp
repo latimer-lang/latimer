@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../utils/error_handler.hpp"
+#include "latimer/utils/error_handler.hpp"
 #include "token.hpp"
 
 struct Lexer {

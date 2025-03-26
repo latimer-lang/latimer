@@ -4,7 +4,7 @@
 #include <string>
 #include <typeinfo>
 
-#include "../utils/macros.hpp"
+#include "latimer/utils/macros.hpp"
 
 enum class TokenType : uint8_t {
     // Single-character tokens
