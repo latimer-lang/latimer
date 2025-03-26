@@ -89,16 +89,36 @@ void Lexer::character() {
 
         char esc = advance();
         switch (esc) {
-            case 'n':  c = '\n'; break; // Newline
-            case 't':  c = '\t'; break; // Tab
-            case 'r':  c = '\r'; break; // Carriage Return
-            case 'b':  c = '\b'; break; // Backspace
-            case 'f':  c = '\f'; break; // Formfeed
-            case 'v':  c = '\v'; break; // Vertical Tab
-            case '0':  c = '\0'; break; // Null character
-            case '\'': c = '\''; break; // Single Quote
-            case '"':  c = '\"'; break; // Double Quote
-            case '\\': c = '\\'; break; // Backslash
+            case 'n': // Newline
+                c = '\n';
+                break;
+            case 't': // Tab
+                c = '\t';
+                break;
+            case 'r': // Carriage Return
+                c = '\r';
+                break;
+            case 'b': // Backspace
+                c = '\b';
+                break;
+            case 'f': // Formfeed
+                c = '\f';
+                break;
+            case 'v': // Vertical Tab
+                c = '\v';
+                break;
+            case '0': // Null character
+                c = '\0';
+                break;
+            case '\'': // Single Quote
+                c = '\'';
+                break;
+            case '"': // Double Quote
+                c = '\"';
+                break;
+            case '\\': // Backslash
+                c = '\\';
+                break;
             default:
                 errorHandler_.error(line_, std::string("Unknown escape character: \\") + esc);
                 return;
@@ -176,7 +196,7 @@ void Lexer::identifier() {
         addToken(TokenType::IDENTIFIER);
         return;
     }
-    
+
     if (type->second == TokenType::TRUE_LIT)
         addToken(type->second, true);
     else if (type->second == TokenType::FALSE_LIT)
@@ -241,10 +261,14 @@ void Lexer::scanToken() {
             addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL);
             break;
         case '<':
-            addToken(match('=') ? TokenType::LESS_EQUAL : match('<') ? TokenType::LESS_LESS : TokenType::LESS);
+            addToken(match('=')   ? TokenType::LESS_EQUAL
+                     : match('<') ? TokenType::LESS_LESS
+                                  : TokenType::LESS);
             break;
         case '>':
-            addToken(match('=') ? TokenType::GREATER_EQUAL : match('>') ? TokenType::GREATER_GREATER : TokenType::GREATER);
+            addToken(match('=')   ? TokenType::GREATER_EQUAL
+                     : match('>') ? TokenType::GREATER_GREATER
+                                  : TokenType::GREATER);
             break;
         case '&':
             addToken(match('&') ? TokenType::AMPERSAND_AMPERSAND : TokenType::AMPERSAND);

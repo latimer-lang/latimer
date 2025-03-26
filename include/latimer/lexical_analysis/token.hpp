@@ -43,7 +43,7 @@ enum class TokenType : uint8_t {
 
     // Identifier
     IDENTIFIER = 31,
-    
+
     // Literals
     CHARACTER_LIT = 32,
     STRING_LIT = 33,
@@ -168,16 +168,26 @@ struct Token {
 
     std::string escapeChar(char c) {
         switch (c) {
-            case '\n': return "\\n";
-            case '\t': return "\\t";
-            case '\r': return "\\r";
-            case '\b': return "\\b";
-            case '\f': return "\\f";
-            case '\v': return "\\v";
-            case '\\': return "\\\\";
-            case '\'': return "\\\'";
-            case '\"': return "\\\"";
-            case '\0': return "\\0";
+            case '\n':
+                return "\\n";
+            case '\t':
+                return "\\t";
+            case '\r':
+                return "\\r";
+            case '\b':
+                return "\\b";
+            case '\f':
+                return "\\f";
+            case '\v':
+                return "\\v";
+            case '\\':
+                return "\\\\";
+            case '\'':
+                return "\\\'";
+            case '\"':
+                return "\\\"";
+            case '\0':
+                return "\\0";
             default:
                 if (std::isprint(static_cast<unsigned char>(c)))
                     return std::string(1, c);

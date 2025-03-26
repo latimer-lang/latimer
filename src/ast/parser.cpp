@@ -30,12 +30,8 @@ AstExprPtr Parser::ternary() {
         consume(TokenType::COLON, "Expected ':' after then-branch of ternary expression.");
         AstExprPtr elseBranch = ternary();
 
-        expr = std::make_unique<AstExprTernary>(
-            expr->line_,
-            std::move(expr),
-            std::move(thenBranch),
-            std::move(elseBranch)
-        );
+        expr = std::make_unique<AstExprTernary>(expr->line_, std::move(expr), std::move(thenBranch),
+                                                std::move(elseBranch));
     }
 
     return expr;
@@ -44,15 +40,10 @@ AstExprPtr Parser::ternary() {
 AstExprPtr Parser::logical() {
     AstExprPtr expr = bitwise();
 
-    while(match({TokenType::PIPE_PIPE, TokenType::AMPERSAND_AMPERSAND})) {
+    while (match({TokenType::PIPE_PIPE, TokenType::AMPERSAND_AMPERSAND})) {
         Token op = previous();
         AstExprPtr right = term();
-        expr = std::make_unique<AstExprBinary>(
-            expr->line_,
-            std::move(expr),
-            op,
-            std::move(right)
-        );
+        expr = std::make_unique<AstExprBinary>(expr->line_, std::move(expr), op, std::move(right));
     }
 
     return expr;
@@ -61,15 +52,10 @@ AstExprPtr Parser::logical() {
 AstExprPtr Parser::bitwise() {
     AstExprPtr expr = equality();
 
-    while(match({TokenType::PIPE, TokenType::AMPERSAND, TokenType::CARET})) {
+    while (match({TokenType::PIPE, TokenType::AMPERSAND, TokenType::CARET})) {
         Token op = previous();
         AstExprPtr right = equality();
-        expr = std::make_unique<AstExprBinary>(
-            expr->line_,
-            std::move(expr),
-            op,
-            std::move(right)
-        );
+        expr = std::make_unique<AstExprBinary>(expr->line_, std::move(expr), op, std::move(right));
     }
 
     return expr;
@@ -78,15 +64,10 @@ AstExprPtr Parser::bitwise() {
 AstExprPtr Parser::equality() {
     AstExprPtr expr = comparison();
 
-    while(match({TokenType::EQUAL_EQUAL, TokenType::BANG_EQUAL})) {
+    while (match({TokenType::EQUAL_EQUAL, TokenType::BANG_EQUAL})) {
         Token op = previous();
         AstExprPtr right = comparison();
-        expr = std::make_unique<AstExprBinary>(
-            expr->line_,
-            std::move(expr),
-            op,
-            std::move(right)
-        );
+        expr = std::make_unique<AstExprBinary>(expr->line_, std::move(expr), op, std::move(right));
     }
 
     return expr;
@@ -95,15 +76,11 @@ AstExprPtr Parser::equality() {
 AstExprPtr Parser::comparison() {
     AstExprPtr expr = bitshift();
 
-    while(match({TokenType::LESS, TokenType::LESS_EQUAL, TokenType::GREATER, TokenType::GREATER_EQUAL})) {
+    while (match(
+        {TokenType::LESS, TokenType::LESS_EQUAL, TokenType::GREATER, TokenType::GREATER_EQUAL})) {
         Token op = previous();
         AstExprPtr right = bitshift();
-        expr = std::make_unique<AstExprBinary>(
-            expr->line_,
-            std::move(expr),
-            op,
-            std::move(right)
-        );
+        expr = std::make_unique<AstExprBinary>(expr->line_, std::move(expr), op, std::move(right));
     }
 
     return expr;
@@ -112,15 +89,10 @@ AstExprPtr Parser::comparison() {
 AstExprPtr Parser::bitshift() {
     AstExprPtr expr = term();
 
-    while(match({TokenType::LESS_LESS, TokenType::GREATER_GREATER})) {
+    while (match({TokenType::LESS_LESS, TokenType::GREATER_GREATER})) {
         Token op = previous();
         AstExprPtr right = term();
-        expr = std::make_unique<AstExprBinary>(
-            expr->line_,
-            std::move(expr),
-            op,
-            std::move(right)
-        );
+        expr = std::make_unique<AstExprBinary>(expr->line_, std::move(expr), op, std::move(right));
     }
 
     return expr;
@@ -129,15 +101,10 @@ AstExprPtr Parser::bitshift() {
 AstExprPtr Parser::term() {
     AstExprPtr expr = factor();
 
-    while(match({TokenType::MINUS, TokenType::PLUS})) {
+    while (match({TokenType::MINUS, TokenType::PLUS})) {
         Token op = previous();
         AstExprPtr right = factor();
-        expr = std::make_unique<AstExprBinary>(
-            expr->line_,
-            std::move(expr),
-            op,
-            std::move(right)
-        );
+        expr = std::make_unique<AstExprBinary>(expr->line_, std::move(expr), op, std::move(right));
     }
 
     return expr;
@@ -146,15 +113,10 @@ AstExprPtr Parser::term() {
 AstExprPtr Parser::factor() {
     AstExprPtr expr = unary();
 
-    while(match({TokenType::SLASH, TokenType::STAR, TokenType::PERECENT})) {
+    while (match({TokenType::SLASH, TokenType::STAR, TokenType::PERECENT})) {
         Token op = previous();
         AstExprPtr right = unary();
-        expr = std::make_unique<AstExprBinary>(
-            expr->line_,
-            std::move(expr),
-            op,
-            std::move(right)
-        );
+        expr = std::make_unique<AstExprBinary>(expr->line_, std::move(expr), op, std::move(right));
     }
 
     return expr;
@@ -165,20 +127,15 @@ AstExprPtr Parser::unary() {
         Token op = previous();
         AstExprPtr expr = unary();
 
-        return std::make_unique<AstExprUnary>(
-            op.line_,
-            op,
-            std::move(expr)
-        );
+        return std::make_unique<AstExprUnary>(op.line_, op, std::move(expr));
     }
 
     return primary();
 }
 
 AstExprPtr Parser::primary() {
-    if (match({TokenType::NIL}))
-        return std::make_unique<AstExprLiteralNull>(previous().line_);
-    
+    if (match({TokenType::NIL})) return std::make_unique<AstExprLiteralNull>(previous().line_);
+
     if (match({TokenType::CHARACTER_LIT})) {
         char value = std::any_cast<char>(previous().literal_);
         return std::make_unique<AstExprLiteralChar>(previous().line_, value);
@@ -199,14 +156,11 @@ AstExprPtr Parser::primary() {
         return std::make_unique<AstExprLiteralBool>(previous().line_, true);
     if (match({TokenType::FALSE_LIT}))
         return std::make_unique<AstExprLiteralBool>(previous().line_, false);
-    
+
     if (match({TokenType::LEFT_PAREN})) {
         AstExprPtr expr = expression();
         consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.");
-        return std::make_unique<AstExprGroup>(
-            expr->line_,
-            std::move(expr)
-        );
+        return std::make_unique<AstExprGroup>(expr->line_, std::move(expr));
     }
 
     throw error(peek(), "Expect expression.");

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "latimer/lexical_analysis/token.hpp"
 
@@ -73,7 +73,8 @@ public:
     AstExprPtr thenBranch_;
     AstExprPtr elseBranch_;
 
-    explicit AstExprTernary(int line, AstExprPtr condition, AstExprPtr thenBranch, AstExprPtr elseBranch)
+    explicit AstExprTernary(int line, AstExprPtr condition, AstExprPtr thenBranch,
+                            AstExprPtr elseBranch)
         : AstExpr(line)
         , condition_(std::move(condition))
         , thenBranch_(std::move(thenBranch))

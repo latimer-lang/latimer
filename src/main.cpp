@@ -5,11 +5,11 @@
 #include <string>
 #include <vector>
 
-#include <latimer/ast/parser.hpp>
 #include "latimer/ast/ast.hpp"
 #include "latimer/lexical_analysis/lexer.hpp"
 #include "latimer/utils/ast_printer.hpp"
 #include "latimer/utils/error_handler.hpp"
+#include <latimer/ast/parser.hpp>
 
 Utils::ErrorHandler errorHandler;
 
@@ -51,23 +51,6 @@ void runFile(std::string filePath) {
 }
 
 int main(int argc, char* argv[]) {
-
-    // // For testing AST printer: -123 * (44.67)
-    // Token minus(TokenType::MINUS, "-", NULL, 1);
-    // AstExprPtr one_two_three = std::make_unique<AstExprLiteralInt>(1, 123);
-    // AstExprPtr negative_one_two_three = std::make_unique<AstExprUnary>(1, minus, std::move(one_two_three));
-
-    // Token multiply(TokenType::STAR, "*", NULL, 1);
-
-    // AstExprPtr forth_five_point = std::make_unique<AstExprLiteralFloat>(1, 44.67);
-    // AstExprPtr paren = std::make_unique<AstExprGroup>(1, std::move(forth_five_point));
-
-    // AstExprPtr expr = std::make_unique<AstExprBinary>(1, std::move(negative_one_two_three), multiply, std::move(paren));
-
-    // AstPrinter prettyPrinter;
-    // std::cout << "Testing pretty printer:\n" << prettyPrinter.print(*expr) << std::endl;
-    // // End of testing AST printer
-
     switch (argc) {
         case 1:
             runRepl();

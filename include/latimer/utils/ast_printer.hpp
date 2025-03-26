@@ -20,7 +20,8 @@ public:
     }
 
     void visitBinaryExpr(AstExprBinary& expr) override {
-        result_ = "(" + expr.op_.lexeme_ + " " + print(*expr.left_) + " " + print(*expr.right_) + ")";
+        result_ =
+            "(" + expr.op_.lexeme_ + " " + print(*expr.left_) + " " + print(*expr.right_) + ")";
     }
 
     void visitTernaryExpr(AstExprTernary& expr) override {

@@ -22,7 +22,7 @@ public:
         if (token.type_ == TokenType::END_OF_FILE)
             report(token.line_, " at end of file", msg);
         else
-            report(token.line_, " at '" + token.lexeme_ + "'" , msg);
+            report(token.line_, " at '" + token.lexeme_ + "'", msg);
     }
 
     void error(int line, const std::string& msg) {
