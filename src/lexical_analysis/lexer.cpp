@@ -12,26 +12,24 @@ Lexer::Lexer(std::string src, Utils::ErrorHandler& errorHandler)
     , line_(1)
     , errorHandler_(errorHandler) {
     // clang-format off
-    keywords_.insert({"and",    TokenType::AND});
     keywords_.insert({"class",  TokenType::CLASS});
     keywords_.insert({"else",   TokenType::ELSE});
-    keywords_.insert({"false",  TokenType::FALSE_});
     keywords_.insert({"for",    TokenType::FOR});
-    keywords_.insert({"fun",    TokenType::FUN});
     keywords_.insert({"if",     TokenType::IF});
     keywords_.insert({"null",   TokenType::NIL});
-    keywords_.insert({"or",     TokenType::OR});
     keywords_.insert({"print",  TokenType::PRINT});
     keywords_.insert({"return", TokenType::RETURN});
     keywords_.insert({"super",  TokenType::SUPER});
     keywords_.insert({"this",   TokenType::THIS});
-    keywords_.insert({"true",   TokenType::TRUE_});
     keywords_.insert({"while",  TokenType::WHILE});
+    keywords_.insert({"true",   TokenType::TRUE_LIT});
+    keywords_.insert({"false",  TokenType::FALSE_LIT});
     keywords_.insert({"bool",   TokenType::BOOL_TY});
     keywords_.insert({"int",    TokenType::INT_TY});
     keywords_.insert({"float",  TokenType::FLOAT_TY});
     keywords_.insert({"char",   TokenType::CHAR_TY});
     keywords_.insert({"string", TokenType::STRING_TY});
+    keywords_.insert({"void",   TokenType::VOID_TY});
     // clang-format on
 }
 
@@ -114,7 +112,7 @@ void Lexer::character() {
 
     advance();
 
-    addToken(TokenType::CHARACTER, c);
+    addToken(TokenType::CHARACTER_LIT, c);
 }
 
 void Lexer::string() {
@@ -131,7 +129,7 @@ void Lexer::string() {
     advance();
 
     std::string value = src_.substr(start_ + 1, current_ - start_ - 2);
-    addToken(TokenType::STRING, value);
+    addToken(TokenType::STRING_LIT, value);
 }
 
 bool Lexer::isDigit(char c) {
@@ -152,7 +150,7 @@ void Lexer::number() {
         while (isDigit(peek())) advance();
     }
 
-    addToken(TokenType::NUMBER, std::stoi(src_.substr(start_, current_ - start_)));
+    addToken(TokenType::NUMBER_LIT, std::stoi(src_.substr(start_, current_ - start_)));
 }
 
 bool Lexer::isAlpha(char c) {
@@ -170,10 +168,15 @@ void Lexer::identifier() {
 
     std::string text = src_.substr(start_, current_ - start_);
     auto type = keywords_.find(text);
-    if (type != keywords_.end())
-        addToken(type->second);
-    else
+    if (type == keywords_.end()) 
         addToken(TokenType::IDENTIFIER);
+    
+    if (type->second == TokenType::TRUE_LIT)
+        addToken(type->second, true);
+    else if (type->second == TokenType::FALSE_LIT)
+        addToken(type->second, false);
+    else
+        addToken(type->second);
 }
 
 void Lexer::scanToken() {
@@ -207,8 +210,23 @@ void Lexer::scanToken() {
         case ';':
             addToken(TokenType::SEMICOLON);
             break;
+        case ':':
+            addToken(TokenType::COLON);
+            break;
+        case '?':
+            addToken(TokenType::QUESTION_MARK);
+            break;
         case '*':
             addToken(TokenType::STAR);
+            break;
+        case '%':
+            addToken(TokenType::PERECENT);
+            break;
+        case '^':
+            addToken(TokenType::CARET);
+            break;
+        case '~':
+            addToken(TokenType::TILDE);
             break;
         case '!':
             addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG);
@@ -217,10 +235,16 @@ void Lexer::scanToken() {
             addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL);
             break;
         case '<':
-            addToken(match('=') ? TokenType::LESS_EQUAL : TokenType::LESS);
+            addToken(match('=') ? TokenType::LESS_EQUAL : match('<') ? TokenType::LESS_LESS : TokenType::LESS);
             break;
         case '>':
-            addToken(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER);
+            addToken(match('=') ? TokenType::GREATER_EQUAL : match('>') ? TokenType::GREATER_GREATER : TokenType::GREATER);
+            break;
+        case '&':
+            addToken(match('&') ? TokenType::AMPERSAND_AMPERSAND : TokenType::AMPERSAND);
+            break;
+        case '|':
+            addToken(match('|') ? TokenType::PIPE_PIPE : TokenType::PIPE);
             break;
         case '/':
             if (match('/')) // Ignore comments

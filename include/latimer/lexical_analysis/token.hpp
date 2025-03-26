@@ -17,48 +17,59 @@ enum class TokenType : uint8_t {
     MINUS = 7,
     PLUS = 8,
     SEMICOLON = 9,
-    SLASH = 10,
-    STAR = 11,
+    COLON = 10,
+    SLASH = 11,
+    STAR = 12,
+    PERECENT = 13,
+    TILDE = 14,
+    CARET = 15,
+    QUESTION_MARK = 16,
 
     // One/two-character tokens
-    BANG = 12,
-    BANG_EQUAL = 13,
-    EQUAL = 14,
-    EQUAL_EQUAL = 15,
-    GREATER = 16,
-    GREATER_EQUAL = 17,
-    LESS = 18,
-    LESS_EQUAL = 19,
+    BANG = 17,
+    BANG_EQUAL = 18,
+    EQUAL = 19,
+    EQUAL_EQUAL = 20,
+    GREATER = 21,
+    GREATER_GREATER = 22,
+    GREATER_EQUAL = 23,
+    LESS = 24,
+    LESS_LESS = 25,
+    LESS_EQUAL = 26,
+    AMPERSAND = 27,
+    AMPERSAND_AMPERSAND = 28,
+    PIPE = 29,
+    PIPE_PIPE = 30,
 
+    // Identifier
+    IDENTIFIER = 31,
+    
     // Literals
-    IDENTIFIER = 20,
-    CHARACTER = 21,
-    STRING = 22,
-    NUMBER = 23,
+    CHARACTER_LIT = 32,
+    STRING_LIT = 33,
+    NUMBER_LIT = 34, // includes int, float
+    TRUE_LIT = 35,
+    FALSE_LIT = 36,
 
     // Keywords
-    AND = 24,
-    CLASS = 25,
-    ELSE = 26,
-    FALSE_ = 27,
-    FUN = 28,
-    FOR = 29,
-    IF = 30,
-    NIL = 31,
-    OR = 32,
-    PRINT = 33,
-    RETURN = 34,
-    SUPER = 35,
-    THIS = 36,
-    TRUE_ = 37,
-    WHILE = 38,
+    CLASS = 37,
+    ELSE = 38,
+    FOR = 39,
+    IF = 40,
+    NIL = 41,
+    PRINT = 42,
+    RETURN = 43,
+    SUPER = 44,
+    THIS = 45,
+    WHILE = 46,
 
     // Types
-    BOOL_TY = 39,
-    INT_TY = 40,
-    FLOAT_TY = 41,
-    CHAR_TY = 42,
-    STRING_TY = 43,
+    BOOL_TY = 47,
+    INT_TY = 48,
+    FLOAT_TY = 49,
+    CHAR_TY = 50,
+    STRING_TY = 51,
+    VOID_TY = 52, // for function return types
 
     END_OF_FILE,
 };
@@ -87,42 +98,51 @@ struct Token {
             case TokenType::MINUS: return "MINUS";
             case TokenType::PLUS: return "PLUS";
             case TokenType::SEMICOLON: return "SEMICOLON";
+            case TokenType::COLON: return "COLON";
             case TokenType::SLASH: return "SLASH";
             case TokenType::STAR: return "STAR";
+            case TokenType::PERECENT: return "PERCENT";
+            case TokenType::TILDE: return "TILDE";
+            case TokenType::CARET: return "CARET";
+            case TokenType::QUESTION_MARK: return "QUESTION_MARK";
             case TokenType::BANG: return "BANG";
             case TokenType::BANG_EQUAL: return "BANG_EQUAL";
             case TokenType::EQUAL: return "EQUAL";
             case TokenType::EQUAL_EQUAL: return "EQUAL_EQUAL";
             case TokenType::GREATER: return "GREATER";
+            case TokenType::GREATER_GREATER: return "GREATER_GREATER";
             case TokenType::GREATER_EQUAL: return "GREATER_EQUAL";
             case TokenType::LESS: return "LESS";
+            case TokenType::LESS_LESS: return "LESS_LESS";
             case TokenType::LESS_EQUAL: return "LESS_EQUAL";
+            case TokenType::AMPERSAND: return "AMPERSAND";
+            case TokenType::AMPERSAND_AMPERSAND: return "AMPERSAND_AMPERSAND";
+            case TokenType::PIPE: return "PIPE";
+            case TokenType::PIPE_PIPE: return "PIPE_PIPE";
             case TokenType::IDENTIFIER: return "IDENTIFIER";
-            case TokenType::CHARACTER: return "CHARACTER";
-            case TokenType::STRING: return "STRING";
-            case TokenType::NUMBER: return "NUMBER";
-            case TokenType::AND: return "AND";
+            case TokenType::CHARACTER_LIT: return "CHARACTER_LIT";
+            case TokenType::STRING_LIT: return "STRING_LIT";
+            case TokenType::NUMBER_LIT: return "NUMBER_LIT";
+            case TokenType::TRUE_LIT: return "TRUE_LIT";
+            case TokenType::FALSE_LIT: return "FALSE_LIT";
             case TokenType::CLASS: return "CLASS";
             case TokenType::ELSE: return "ELSE";
-            case TokenType::FALSE_: return "FALSE";
-            case TokenType::FUN: return "FUN";
             case TokenType::FOR: return "FOR";
             case TokenType::IF: return "IF";
             case TokenType::NIL: return "NIL";
-            case TokenType::OR: return "OR";
             case TokenType::PRINT: return "PRINT";
             case TokenType::RETURN: return "RETURN";
             case TokenType::SUPER: return "SUPER";
             case TokenType::THIS: return "THIS";
-            case TokenType::TRUE_: return "TRUE";
             case TokenType::WHILE: return "WHILE";
             case TokenType::BOOL_TY: return "BOOL_TY";
             case TokenType::INT_TY: return "INT_TY";
             case TokenType::FLOAT_TY: return "FLOAT_TY";
             case TokenType::CHAR_TY: return "CHAR_TY";
             case TokenType::STRING_TY: return "STRING_TY";
+            case TokenType::VOID_TY: return "VOID_TY";
             case TokenType::END_OF_FILE: return "END_OF_FILE";
-        }
+}
         // clang-format on
 
         UNREACHABLE_CODE

@@ -31,7 +31,8 @@ clang-format -i **/*.cpp **/*.hpp
 - [x] build error handler
 - [x] build lexer
 - [x] change reserved keywords ("NIL" -> NULL, remove "VAR")
-- [ ] add support for binary operators (>>, <<, |, &, ^, ~)
+- [x] add support for binary operators (>>, <<, |, &, ^, ~)
+- [x] add support for ternary expressions (?, :)
 
 ### Parsing
 - [x] create document for defining grammar for expressions
