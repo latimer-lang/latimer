@@ -75,6 +75,48 @@ char Lexer::peek() {
     return src_.at(current_);
 }
 
+void Lexer::character() {
+    if (isAtEnd()) {
+        errorHandler_.error(line_, "Unterminated character literal.");
+        return;
+    }
+
+    char c = advance();
+
+    if (c == '\\') {
+        if (isAtEnd()) {
+            errorHandler_.error(line_, "Unterminated escape sequence in character literal.");
+            return;
+        }
+
+        char esc = advance();
+        switch (esc) {
+            case 'n':  c = '\n'; break; // Newline
+            case 't':  c = '\t'; break; // Tab
+            case 'r':  c = '\r'; break; // Carriage Return
+            case 'b':  c = '\b'; break; // Backspace
+            case 'f':  c = '\f'; break; // Formfeed
+            case 'v':  c = '\v'; break; // Vertical Tab
+            case '0':  c = '\0'; break; // Null character
+            case '\'': c = '\''; break; // Single Quote
+            case '"':  c = '\"'; break; // Double Quote
+            case '\\': c = '\\'; break; // Backslash
+            default:
+                errorHandler_.error(line_, std::string("Unknown escape character: \\") + esc);
+                return;
+        }
+    }
+
+    if (peek() != '\'') {
+        errorHandler_.error(line_, "Character literal must be a single character.");
+        return;
+    }
+
+    advance();
+
+    addToken(TokenType::CHARACTER, c);
+}
+
 void Lexer::string() {
     while (peek() != '"' && !isAtEnd()) {
         if (peek() == '\n') ++line_;
@@ -88,7 +130,7 @@ void Lexer::string() {
 
     advance();
 
-    std::string value = src_.substr(start_ + 1, current_ - start_ - 1);
+    std::string value = src_.substr(start_ + 1, current_ - start_ - 2);
     addToken(TokenType::STRING, value);
 }
 
@@ -181,8 +223,8 @@ void Lexer::scanToken() {
             addToken(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER);
             break;
         case '/':
-            if (match('/'))
-                while (peek() != '\n' && !isAtEnd()) advance(); // Ignore comments
+            if (match('/')) // Ignore comments
+                while (peek() != '\n' && !isAtEnd()) advance();
             else
                 addToken(TokenType::SLASH);
             break;
@@ -192,6 +234,9 @@ void Lexer::scanToken() {
             break;
         case '\n':
             ++line_;
+            break;
+        case '\'':
+            character();
             break;
         case '"':
             string();

@@ -28,6 +28,7 @@ private:
     void addToken(TokenType type, std::any literal);
     bool match(char expected);
     char peek();
+    void character();
     void string();
     bool isDigit(char c);
     char peekNext();

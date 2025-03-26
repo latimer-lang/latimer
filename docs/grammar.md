@@ -26,7 +26,7 @@ group → "(" expression ")"
 
 ## Unary Expressions
 ```
-unary → ( "-" | "!" ) expression
+unary → ( "-" | "!" | "~" ) expression
 ```
 
 ## Binary Expressions

@@ -32,32 +32,33 @@ enum class TokenType : uint8_t {
 
     // Literals
     IDENTIFIER = 20,
-    STRING = 21,
-    NUMBER = 22,
+    CHARACTER = 21,
+    STRING = 22,
+    NUMBER = 23,
 
     // Keywords
-    AND = 23,
-    CLASS = 24,
-    ELSE = 25,
-    FALSE_ = 26,
-    FUN = 27,
-    FOR = 28,
-    IF = 29,
-    NIL = 30,
-    OR = 31,
-    PRINT = 32,
-    RETURN = 33,
-    SUPER = 34,
-    THIS = 35,
-    TRUE_ = 36,
-    WHILE = 37,
+    AND = 24,
+    CLASS = 25,
+    ELSE = 26,
+    FALSE_ = 27,
+    FUN = 28,
+    FOR = 29,
+    IF = 30,
+    NIL = 31,
+    OR = 32,
+    PRINT = 33,
+    RETURN = 34,
+    SUPER = 35,
+    THIS = 36,
+    TRUE_ = 37,
+    WHILE = 38,
 
     // Types
-    BOOL_TY = 38,
-    INT_TY = 39,
-    FLOAT_TY = 40,
-    CHAR_TY = 41,
-    STRING_TY = 42,
+    BOOL_TY = 39,
+    INT_TY = 40,
+    FLOAT_TY = 41,
+    CHAR_TY = 42,
+    STRING_TY = 43,
 
     END_OF_FILE,
 };
@@ -97,6 +98,7 @@ struct Token {
             case TokenType::LESS: return "LESS";
             case TokenType::LESS_EQUAL: return "LESS_EQUAL";
             case TokenType::IDENTIFIER: return "IDENTIFIER";
+            case TokenType::CHARACTER: return "CHARACTER";
             case TokenType::STRING: return "STRING";
             case TokenType::NUMBER: return "NUMBER";
             case TokenType::AND: return "AND";
@@ -136,7 +138,32 @@ struct Token {
             return std::any_cast<std::string>(literal_);
         else if (literal_.type() == typeid(bool))
             return std::to_string(std::any_cast<bool>(literal_));
+        else if (literal_.type() == typeid(char))
+            return escapeChar(std::any_cast<char>(literal_));
         else
             return "NULL";
+    }
+
+    std::string escapeChar(char c) {
+        switch (c) {
+            case '\n': return "\\n";
+            case '\t': return "\\t";
+            case '\r': return "\\r";
+            case '\b': return "\\b";
+            case '\f': return "\\f";
+            case '\v': return "\\v";
+            case '\\': return "\\\\";
+            case '\'': return "\\\'";
+            case '\"': return "\\\"";
+            case '\0': return "\\0";
+            default:
+                if (std::isprint(static_cast<unsigned char>(c)))
+                    return std::string(1, c);
+                else {
+                    char buf[5];
+                    std::snprintf(buf, sizeof(buf), "\\x%02x", static_cast<unsigned char>(c));
+                    return buf;
+                }
+        }
     }
 };
