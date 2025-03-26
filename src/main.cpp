@@ -17,10 +17,11 @@ void run(std::string src) {
     Lexer lexer = Lexer(src, errorHandler);
     std::vector<Token> tokens = lexer.scanTokens();
     Parser parser = Parser(tokens, errorHandler);
+    AstExprPtr expr = parser.parse();
 
     if (errorHandler.hadError_) return;
 
-    std::cout << AstPrinter().print(*parser.parse()) << std::endl;
+    std::cout << AstPrinter().print(*expr) << std::endl;
 }
 
 void runRepl() {

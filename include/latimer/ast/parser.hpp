@@ -22,7 +22,7 @@ public:
 private:
     std::vector<Token> tokens_;
     int current_;
-    Utils::ErrorHandler errorHandler_;
+    Utils::ErrorHandler& errorHandler_;
 
     AstExprPtr expression();
     AstExprPtr ternary();

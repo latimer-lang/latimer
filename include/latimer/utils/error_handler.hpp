@@ -14,13 +14,13 @@ public:
         : hadError_(false) {}
 
     void report(int line, const std::string& where, const std::string& msg) {
-        std::cerr << "[line " << line << "] Error " << where << ": " + msg << std::endl;
+        std::cerr << "[line " << line << "] Error" << where << ": " + msg << std::endl;
         hadError_ = true;
     }
 
     void error(const Token& token, const std::string& msg) {
         if (token.type_ == TokenType::END_OF_FILE)
-            report(token.line_, " at end", msg);
+            report(token.line_, " at end of file", msg);
         else
             report(token.line_, " at '" + token.lexeme_ + "'" , msg);
     }
