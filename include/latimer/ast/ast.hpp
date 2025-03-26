@@ -104,9 +104,9 @@ public:
 
 class AstExprLiteralInt : public AstExpr {
 public:
-    int value_;
+    int32_t value_;
 
-    explicit AstExprLiteralInt(int line, int value)
+    explicit AstExprLiteralInt(int line, int32_t value)
         : AstExpr(line)
         , value_(value) {}
 

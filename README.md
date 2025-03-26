@@ -33,7 +33,7 @@ clang-format -i **/*.cpp **/*.hpp
 - [x] change reserved keywords ("NIL" -> NULL, remove "VAR")
 - [x] add support for binary operators (>>, <<, |, &, ^, ~)
 - [x] add support for ternary expressions (?, :)
-- [ ] might have to specify integer literal value to be `int32_t`
+- [x] might have to specify integer literal value to be `int32_t`
 
 ### Parsing
 - [x] create document for defining grammar for expressions

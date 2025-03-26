@@ -152,8 +152,8 @@ struct Token {
     }
 
     std::string stringifyLiteral() {
-        if (literal_.type() == typeid(int))
-            return std::to_string(std::any_cast<int>(literal_));
+        if (literal_.type() == typeid(int32_t))
+            return std::to_string(std::any_cast<int32_t>(literal_));
         else if (literal_.type() == typeid(float))
             return std::to_string(std::any_cast<float>(literal_));
         else if (literal_.type() == typeid(std::string))

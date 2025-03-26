@@ -145,7 +145,7 @@ AstExprPtr Parser::primary() {
         return std::make_unique<AstExprLiteralString>(previous().line_, value);
     }
     if (match({TokenType::INTEGER_LIT})) {
-        int value = std::any_cast<int>(previous().literal_);
+        int32_t value = std::any_cast<int32_t>(previous().literal_);
         return std::make_unique<AstExprLiteralInt>(previous().line_, value);
     }
     if (match({TokenType::FLOAT_LIT})) {
