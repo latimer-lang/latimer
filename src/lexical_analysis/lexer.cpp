@@ -1,8 +1,8 @@
-#include "latimer/lexical_analysis/lexer.hpp"
+#include <latimer/lexical_analysis/lexer.hpp>
 
 #include <any>
 
-#include "latimer/lexical_analysis/token.hpp"
+#include <latimer/lexical_analysis/token.hpp>
 
 Lexer::Lexer(std::string src, Utils::ErrorHandler& errorHandler)
     : src_(src)

@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "latimer/ast/ast.hpp"
+#include <latimer/ast/ast.hpp>
 
 class AstPrinter : public AstVisitor {
 public:

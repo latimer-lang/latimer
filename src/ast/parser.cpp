@@ -1,6 +1,6 @@
-#include "latimer/ast/parser.hpp"
-#include "latimer/ast/ast.hpp"
-#include "latimer/utils/error_handler.hpp"
+#include <latimer/ast/parser.hpp>
+#include <latimer/ast/ast.hpp>
+#include <latimer/utils/error_handler.hpp>
 
 Parser::Parser(std::vector<Token> tokens, Utils::ErrorHandler& errorHandler)
     : tokens_(tokens)

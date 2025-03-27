@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-#include "latimer/lexical_analysis/token.hpp"
+#include <latimer/lexical_analysis/token.hpp>
 
 class AstVisitor;
 class AstExpr;

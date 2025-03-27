@@ -4,9 +4,9 @@
 #include <stdexcept>
 #include <vector>
 
-#include "latimer/ast/ast.hpp"
-#include "latimer/lexical_analysis/token.hpp"
-#include "latimer/utils/error_handler.hpp"
+#include <latimer/ast/ast.hpp>
+#include <latimer/lexical_analysis/token.hpp>
+#include <latimer/utils/error_handler.hpp>
 
 class Parser {
 public:

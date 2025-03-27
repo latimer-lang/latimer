@@ -1,4 +1,4 @@
-#include "latimer/ast/ast.hpp"
+#include <latimer/ast/ast.hpp>
 
 void AstExprGroup::accept(AstVisitor& visitor) {
     visitor.visitGroupExpr(*this);

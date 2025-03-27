@@ -5,10 +5,10 @@
 #include <string>
 #include <vector>
 
-#include "latimer/ast/ast.hpp"
-#include "latimer/lexical_analysis/lexer.hpp"
-#include "latimer/utils/ast_printer.hpp"
-#include "latimer/utils/error_handler.hpp"
+#include <latimer/ast/ast.hpp>
+#include <latimer/lexical_analysis/lexer.hpp>
+#include <latimer/utils/ast_printer.hpp>
+#include <latimer/utils/error_handler.hpp>
 #include <latimer/ast/parser.hpp>
 #include <latimer/vm/ast_interpreter.hpp>
 

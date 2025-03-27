@@ -4,9 +4,9 @@
 #include <stdexcept>
 #include <variant>
 
-#include "latimer/utils/error_handler.hpp"
+#include <latimer/utils/error_handler.hpp>
 #include <latimer/utils/macros.hpp>
-#include "latimer/ast/ast.hpp"
+#include <latimer/ast/ast.hpp>
 #include <latimer/lexical_analysis/token.hpp>
 
 AstInterpreter::AstInterpreter(Utils::ErrorHandler& errorHandler)
