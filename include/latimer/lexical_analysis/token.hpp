@@ -87,7 +87,7 @@ struct Token {
         , literal_(literal)
         , line_(line) {}
 
-    std::string stringifyType() {
+    std::string stringifyTokenType() {
         // clang-format off
         switch (type_) {
             case TokenType::LEFT_PAREN: return "LEFT_PAREN";

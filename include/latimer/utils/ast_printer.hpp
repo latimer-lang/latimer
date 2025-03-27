@@ -10,6 +10,9 @@ public:
         expr.accept(*this);
         return result_;
     }
+    
+private:
+    std::string result_;
 
     void visitGroupExpr(AstExprGroup& expr) override {
         result_ = "(group " + print(*expr.expr_) + ")";

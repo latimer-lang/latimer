@@ -8,11 +8,6 @@
 #include "latimer/lexical_analysis/token.hpp"
 #include "latimer/utils/error_handler.hpp"
 
-class ParseError : public std::runtime_error {
-public:
-    explicit ParseError(const std::string& msg);
-};
-
 class Parser {
 public:
     explicit Parser(std::vector<Token> tokens, Utils::ErrorHandler& errorHandler);

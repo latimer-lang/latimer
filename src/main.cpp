@@ -10,18 +10,22 @@
 #include "latimer/utils/ast_printer.hpp"
 #include "latimer/utils/error_handler.hpp"
 #include <latimer/ast/parser.hpp>
+#include <latimer/vm/ast_interpreter.hpp>
 
 Utils::ErrorHandler errorHandler;
+AstInterpreter interpreter(errorHandler);
 
-void run(std::string src) {
+void run(std::string src) { // TODO: wtf is going on with `1 < 3 : 4 ? 2`
     Lexer lexer = Lexer(src, errorHandler);
     std::vector<Token> tokens = lexer.scanTokens();
+
     Parser parser = Parser(tokens, errorHandler);
     AstExprPtr expr = parser.parse();
+    std::cout << "[DEBUG] AST TREE: " << AstPrinter().print(*expr) << std::endl;
 
     if (errorHandler.hadError_) return;
 
-    std::cout << AstPrinter().print(*expr) << std::endl;
+    interpreter.interpret(*expr);
 }
 
 void runRepl() {
@@ -48,6 +52,7 @@ void runFile(std::string filePath) {
     run(buf.str());
 
     if (errorHandler.hadError_) std::exit(65);
+    if (errorHandler.hadRuntimeError_) std::exit(70);
 }
 
 int main(int argc, char* argv[]) {

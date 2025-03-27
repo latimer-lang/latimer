@@ -45,3 +45,8 @@ clang-format -i **/*.cpp **/*.hpp
 ### Semantic Analysis
 
 ### Code Generation
+
+### AstInterpreter
+- [ ] implement short circuiting to logical operators
+- [ ] more specific errors messages (ex: trying to add "a" + 'b' gives: "Unsupported operands for 'a' + 'b'". but ideally, should be "a" + 'b' to distinguish string and char)
+- [ ] possible move out type R to another class for more modularity

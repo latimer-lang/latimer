@@ -148,8 +148,6 @@ public:
 
 class AstVisitor {
 public:
-    std::string result_;
-
     ~AstVisitor() = default;
 
     virtual void visitGroupExpr(AstExprGroup& expr) = 0;

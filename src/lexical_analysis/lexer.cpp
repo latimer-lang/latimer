@@ -261,14 +261,14 @@ void Lexer::scanToken() {
             addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL);
             break;
         case '<':
-            addToken(match('=')   ? TokenType::LESS_EQUAL
-                     : match('<') ? TokenType::LESS_LESS
-                                  : TokenType::LESS);
+            addToken(match('=') ? TokenType::LESS_EQUAL
+                : match('<') ? TokenType::LESS_LESS
+                : TokenType::LESS);
             break;
         case '>':
-            addToken(match('=')   ? TokenType::GREATER_EQUAL
-                     : match('>') ? TokenType::GREATER_GREATER
-                                  : TokenType::GREATER);
+            addToken(match('=') ? TokenType::GREATER_EQUAL
+                : match('>') ? TokenType::GREATER_GREATER
+                : TokenType::GREATER);
             break;
         case '&':
             addToken(match('&') ? TokenType::AMPERSAND_AMPERSAND : TokenType::AMPERSAND);

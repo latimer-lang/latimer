@@ -2,9 +2,6 @@
 #include "latimer/ast/ast.hpp"
 #include "latimer/utils/error_handler.hpp"
 
-ParseError::ParseError(const std::string& msg)
-    : std::runtime_error(msg) {}
-
 Parser::Parser(std::vector<Token> tokens, Utils::ErrorHandler& errorHandler)
     : tokens_(tokens)
     , current_(0)
@@ -89,7 +86,7 @@ AstExprPtr Parser::comparison() {
 AstExprPtr Parser::bitshift() {
     AstExprPtr expr = term();
 
-    while (match({TokenType::LESS_LESS, TokenType::GREATER_GREATER})) {
+    while (match({TokenType::GREATER_GREATER, TokenType::LESS_LESS})) {
         Token op = previous();
         AstExprPtr right = term();
         expr = std::make_unique<AstExprBinary>(expr->line_, std::move(expr), op, std::move(right));
