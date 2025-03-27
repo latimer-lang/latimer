@@ -26,6 +26,7 @@ clang-format -i **/*.cpp **/*.hpp
 ### MAIN
 - [x] read user input one line at a time (currently reading by spaces)
 - [x] support taking in files
+- [ ] wtf is going on w/ `1 < 3 : 4 ? 2`
 
 ### Lexical Analysis
 - [x] build error handler
