@@ -35,6 +35,7 @@ clang-format -i **/*.cpp **/*.hpp
 - [x] add support for binary operators (>>, <<, |, &, ^, ~)
 - [x] add support for ternary expressions (?, :)
 - [x] might have to specify integer literal value to be `int32_t`
+- [ ] add support for walrus operators (assignment expressions)
 
 ### Parsing
 - [x] create document for defining grammar for expressions
