@@ -39,3 +39,19 @@ void AstExprLiteralString::accept(AstVisitor& visitor) {
 void AstExprLiteralChar::accept(AstVisitor& visitor) {
     visitor.visitLiteralCharExpr(*this);
 }
+
+void AstExprVariable::accept(AstVisitor& visitor) {
+    visitor.visitVariableExpr(*this);
+}
+
+void AstStatVarDecl::accept(AstVisitor& visitor) {
+    visitor.visitVarDeclStat(*this);
+}
+
+void AstStatExpression::accept(AstVisitor& visitor) {
+    visitor.visitExpressionStat(*this);
+}
+
+void AstStatPrint::accept(AstVisitor& visitor) {
+    visitor.visitPrintStat(*this);
+}

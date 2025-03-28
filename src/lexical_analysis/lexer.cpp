@@ -39,7 +39,7 @@ std::vector<Token> Lexer::scanTokens() {
         scanToken();
     }
 
-    tokens_.emplace_back(TokenType::END_OF_FILE, "", NULL, line_);
+    tokens_.emplace_back(TokenType::END_OF_FILE, "", std::monostate{}, line_);
     return tokens_;
 }
 
@@ -52,10 +52,10 @@ char Lexer::advance() {
 }
 
 void Lexer::addToken(TokenType type) {
-    addToken(type, NULL);
+    addToken(type, std::monostate{});
 }
 
-void Lexer::addToken(TokenType type, std::any literal) {
+void Lexer::addToken(TokenType type, Runtime::Value literal) {
     std::string text = src_.substr(start_, current_ - start_);
     tokens_.emplace_back(type, text, literal, line_);
 }

@@ -13,19 +13,19 @@
 #include <latimer/vm/ast_interpreter.hpp>
 
 Utils::ErrorHandler errorHandler;
-AstInterpreter interpreter(errorHandler);
+Environment environment;
+AstInterpreter interpreter(errorHandler, environment);
 
 void run(std::string src) { // TODO: wtf is going on with `1 < 3 : 4 ? 2`
     Lexer lexer = Lexer(src, errorHandler);
     std::vector<Token> tokens = lexer.scanTokens();
 
     Parser parser = Parser(tokens, errorHandler);
-    AstExprPtr expr = parser.parse();
-    std::cout << "[DEBUG] AST TREE: " << AstPrinter().print(*expr) << std::endl;
+    std::vector<AstStatPtr> statements = parser.parse();
 
     if (errorHandler.hadError_) return;
 
-    interpreter.interpret(*expr);
+    interpreter.interpret(statements);
 }
 
 void runRepl() {

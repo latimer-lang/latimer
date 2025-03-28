@@ -15,6 +15,20 @@ The following table lists the precedence and associativity of Latimer operators.
 | factor     | `a / b` `a * b` `a % b`           | Division, multiplication, and remainder                       | left              |
 | unary      | `!a` `~a` `-a`                    | Logical NOT, bitwise NOT (bitwise complement), and unary minus| right             |
 
+## Statements
+This section consists of Context-Free Grammar used by Latimer's parser for statements.
+```
+program        → declaration* END_OF_FILE
+declaration    → varDeclStat
+               | statement
+statement      → exprStmt
+               | printStmt
+varDeclStat    → varType IDENTIFIER ( "=" expression )? ";"
+varType        → BOOL_TY | INT_TY | FLOAT_TY | CHAR_TY | STRING_TY
+exprStat       → expression ";"
+printStat      → "print" expression ";"
+```
+
 ## Expressions
 This section consists of Context-Free Grammar used by Latimer's parser for expressions.
 
@@ -36,4 +50,5 @@ primary → NUMBER
         | "false"
         | "null"
         | "(" expression ")"
+        | IDENTIFIER
 ```

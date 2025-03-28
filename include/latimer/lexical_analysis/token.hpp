@@ -2,9 +2,9 @@
 
 #include <any>
 #include <string>
-#include <typeinfo>
 
 #include <latimer/utils/macros.hpp>
+#include <latimer/vm/value.hpp>
 
 enum class TokenType : uint8_t {
     // Single-character tokens
@@ -78,10 +78,10 @@ enum class TokenType : uint8_t {
 struct Token {
     TokenType type_;
     std::string lexeme_;
-    std::any literal_;
+    Runtime::Value literal_;
     int line_;
 
-    Token(TokenType type, std::string lexeme, std::any literal, int line)
+    Token(TokenType type, std::string lexeme, Runtime::Value literal, int line)
         : type_(type)
         , lexeme_(lexeme)
         , literal_(literal)
@@ -152,16 +152,16 @@ struct Token {
     }
 
     std::string stringifyLiteral() {
-        if (literal_.type() == typeid(int32_t))
-            return std::to_string(std::any_cast<int32_t>(literal_));
-        else if (literal_.type() == typeid(float))
-            return std::to_string(std::any_cast<float>(literal_));
-        else if (literal_.type() == typeid(std::string))
-            return std::any_cast<std::string>(literal_);
-        else if (literal_.type() == typeid(bool))
-            return std::to_string(std::any_cast<bool>(literal_));
-        else if (literal_.type() == typeid(char))
-            return escapeChar(std::any_cast<char>(literal_));
+        if (std::holds_alternative<int32_t>(literal_))
+            return std::to_string(std::get<int32_t>(literal_));
+        else if (std::holds_alternative<float>(literal_))
+            return std::to_string(std::get<float>(literal_));
+        else if (std::holds_alternative<std::string>(literal_))
+            return std::get<std::string>(literal_);
+        else if (std::holds_alternative<std::string>(literal_))
+            return std::to_string(std::get<bool>(literal_));
+        else if (std::holds_alternative<char>(literal_))
+            return escapeChar(std::get<char>(literal_));
         else
             return "NULL";
     }

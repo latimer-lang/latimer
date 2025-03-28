@@ -12,7 +12,7 @@ class Parser {
 public:
     explicit Parser(std::vector<Token> tokens, Utils::ErrorHandler& errorHandler);
 
-    AstExprPtr parse();
+    std::vector<AstStatPtr> parse();
 
 private:
     std::vector<Token> tokens_;
@@ -31,6 +31,12 @@ private:
     AstExprPtr unary();
     AstExprPtr primary();
 
+    AstStatPtr declaration();
+    AstStatPtr statement();
+    AstStatPtr varDeclStat();
+    AstStatPtr exprStat();
+    AstStatPtr printStat();
+
     bool match(std::initializer_list<TokenType> types);
     bool check(TokenType type);
     Token advance();
@@ -38,5 +44,7 @@ private:
     Token peek();
     Token previous();
     Token consume(TokenType type, std::string msg);
+    Token consume(std::initializer_list<TokenType> types, std::string msg);
     ParseError error(const Token& token, const std::string& msg);
+    void synchronize();
 };

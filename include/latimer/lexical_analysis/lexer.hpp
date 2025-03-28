@@ -25,7 +25,7 @@ private:
     bool isAtEnd();
     char advance();
     void addToken(TokenType type);
-    void addToken(TokenType type, std::any literal);
+    void addToken(TokenType type, Runtime::Value literal);
     bool match(char expected);
     char peek();
     void character();

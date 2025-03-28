@@ -6,17 +6,17 @@
 #include <latimer/lexical_analysis/token.hpp>
 
 class AstVisitor;
-class AstExpr;
-
-using AstExprPtr = std::unique_ptr<AstExpr>;
 
 class AstNode {
-public:
+    public:
     int line_;
-
+    
     explicit AstNode(int line)
-        : line_(line) {}
+    : line_(line) {}
 };
+
+class AstExpr;
+using AstExprPtr = std::unique_ptr<AstExpr>;
 
 class AstExpr : public AstNode {
 public:
@@ -146,6 +146,67 @@ public:
     void accept(AstVisitor& visitor) override;
 };
 
+class AstExprVariable : public AstExpr {
+public:
+    Token name_;
+
+    explicit AstExprVariable(int line, Token name)
+        : AstExpr(line)
+        , name_(name) {}
+
+    void accept(AstVisitor& visitor) override;
+};
+
+class AstStat;
+using AstStatPtr = std::unique_ptr<AstStat>;
+
+class AstStat : public AstNode {
+public:
+    explicit AstStat(int line)
+        : AstNode(line) {}
+
+    virtual ~AstStat() = default;
+
+    virtual void accept(AstVisitor& visitor) = 0;
+};
+
+class AstStatVarDecl : public AstStat {
+public:
+    Token type_;
+    Token name_;
+    AstExprPtr initializer_;
+
+    explicit AstStatVarDecl(int line, Token type, Token name, AstExprPtr initializer)
+        : AstStat(line)
+        , type_(type)
+        , name_(name)
+        , initializer_(std::move(initializer)) {}
+
+    void accept(AstVisitor& visitor) override;
+};
+
+class AstStatExpression : public AstStat {
+public:
+    AstExprPtr expr_;
+
+    explicit AstStatExpression(int line, AstExprPtr expr)
+        : AstStat(line)
+        , expr_(std::move(expr)) {}
+    
+    void accept(AstVisitor& visitor) override;
+};
+
+class AstStatPrint : public AstStat {
+public:
+    AstExprPtr expr_;
+
+    explicit AstStatPrint(int line, AstExprPtr expr)
+        : AstStat(line)
+        , expr_(std::move(expr)) {}
+
+    void accept(AstVisitor& visitor) override;
+};
+
 class AstVisitor {
 public:
     ~AstVisitor() = default;
@@ -160,4 +221,9 @@ public:
     virtual void visitLiteralFloatExpr(AstExprLiteralFloat& expr) = 0;
     virtual void visitLiteralStringExpr(AstExprLiteralString& expr) = 0;
     virtual void visitLiteralCharExpr(AstExprLiteralChar& expr) = 0;
+    virtual void visitVariableExpr(AstExprVariable& expr) = 0;
+
+    virtual void visitVarDeclStat(AstStatVarDecl& stat) = 0;
+    virtual void visitExpressionStat(AstStatExpression& stat) = 0;
+    virtual void visitPrintStat(AstStatPrint& stat) = 0;
 };

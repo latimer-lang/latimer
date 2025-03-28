@@ -2,26 +2,42 @@
 
 #include <iostream>
 #include <stdexcept>
-#include <variant>
 
-#include <latimer/utils/error_handler.hpp>
 #include <latimer/utils/macros.hpp>
-#include <latimer/ast/ast.hpp>
-#include <latimer/lexical_analysis/token.hpp>
 
-AstInterpreter::AstInterpreter(Utils::ErrorHandler& errorHandler)
-    : errorHandler_(errorHandler) {}
+Environment::Environment()
+    : values() {}
 
-void AstInterpreter::interpret(AstExpr& expr) {
+void Environment::define(std::string name, Runtime::Value value) {
+    values.insert({name, value});
+}
+
+Runtime::Value Environment::get(Token name) {
+    if (values.find(name.lexeme_) != values.end())
+        return values.at(name.lexeme_);
+
+    throw RuntimeError(name, "Undefined variable '" + name.lexeme_ + "'.");
+}
+
+AstInterpreter::AstInterpreter(Utils::ErrorHandler& errorHandler, Environment& env)
+    : errorHandler_(errorHandler)
+    , env_(env) {}
+
+void AstInterpreter::interpret(const std::vector<AstStatPtr>& statements) {
     try {
-        R output = evaluate(expr);
-        std::cout << toString(output) << std::endl;
+        for (const AstStatPtr& stat : statements) {
+            execute(*stat);
+        }
     } catch (RuntimeError error) {
         errorHandler_.runtimeError(error);
     }
 }
 
-AstInterpreter::R AstInterpreter::evaluate(AstExpr& expr) {
+void AstInterpreter::execute(AstStat& stat) {
+    stat.accept(*this);
+}
+
+Runtime::Value AstInterpreter::evaluate(AstExpr& expr) {
     expr.accept(*this);
     return result_;
 }
@@ -31,7 +47,7 @@ void AstInterpreter::visitGroupExpr(AstExprGroup& expr) {
 }
 
 void AstInterpreter::visitUnaryExpr(AstExprUnary& expr) {
-    R right = evaluate(*expr.right_);
+    Runtime::Value right = evaluate(*expr.right_);
 
     switch (expr.op_.type_) {
         case TokenType::BANG:
@@ -62,8 +78,8 @@ void AstInterpreter::visitUnaryExpr(AstExprUnary& expr) {
 }
 
 void AstInterpreter::visitBinaryExpr(AstExprBinary& expr) {
-    R left = evaluate(*expr.left_);
-    R right = evaluate(*expr.right_);
+    Runtime::Value left = evaluate(*expr.left_);
+    Runtime::Value right = evaluate(*expr.right_);
 
     switch (expr.op_.type_) {
         case TokenType::SLASH: // TODO: Division by Zero error
@@ -244,10 +260,10 @@ void AstInterpreter::visitBinaryExpr(AstExprBinary& expr) {
 }
 
 void AstInterpreter::visitTernaryExpr(AstExprTernary& expr) {
-    R cond = evaluate(*expr.condition_);
+    Runtime::Value cond = evaluate(*expr.condition_);
 
     if (!std::holds_alternative<bool>(cond))
-        throw RuntimeError({TokenType::QUESTION_MARK, "?", NULL, expr.line_}, "Ternary condition must be a boolean.");
+        throw RuntimeError({TokenType::QUESTION_MARK, "?", std::monostate{}, expr.line_}, "Ternary condition must be a boolean.");
 
     result_ = std::get<bool>(cond) ? evaluate(*expr.thenBranch_) : evaluate(*expr.elseBranch_);
 }
@@ -276,7 +292,28 @@ void AstInterpreter::visitLiteralCharExpr(AstExprLiteralChar& expr) {
     result_ = expr.value_;
 }
 
-inline std::string AstInterpreter::toString(R value) {
+void AstInterpreter::visitVariableExpr(AstExprVariable& expr) {
+    result_ = env_.get(expr.name_);
+}
+
+void AstInterpreter::visitVarDeclStat(AstStatVarDecl& stat) {
+    Runtime::Value value = std::monostate{};
+    if (stat.initializer_ != NULL)
+        value = evaluate(*stat.initializer_);
+
+    env_.define(stat.name_.lexeme_, value);
+}
+
+void AstInterpreter::visitExpressionStat(AstStatExpression& stat) {
+    evaluate(*stat.expr_);
+}
+
+void AstInterpreter::visitPrintStat(AstStatPrint& stat) {
+    Runtime::Value output = evaluate(*stat.expr_);
+    std::cout << toString(output) << std::endl;
+}
+
+inline std::string AstInterpreter::toString(Runtime::Value value) {
     if (std::holds_alternative<std::monostate>(value)) return "null";
     if (std::holds_alternative<bool>(value)) return std::get<bool>(value) ? "true" : "false";
     if (std::holds_alternative<int32_t>(value)) return std::to_string(std::get<int32_t>(value));
