@@ -44,6 +44,10 @@ void AstExprVariable::accept(AstVisitor& visitor) {
     visitor.visitVariableExpr(*this);
 }
 
+void AstExprAssignment::accept(AstVisitor& visitor) {
+    visitor.visitAssignmentExpr(*this);
+}
+
 void AstStatVarDecl::accept(AstVisitor& visitor) {
     visitor.visitVarDeclStat(*this);
 }

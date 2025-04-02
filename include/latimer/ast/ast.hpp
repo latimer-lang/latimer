@@ -157,6 +157,19 @@ public:
     void accept(AstVisitor& visitor) override;
 };
 
+class AstExprAssignment : public AstExpr {
+public:
+    Token name_;
+    AstExprPtr value_;
+
+    explicit AstExprAssignment(int line, Token name, AstExprPtr value)
+        : AstExpr(line)
+        , name_(name)
+        , value_(std::move(value)) {}
+
+    void accept(AstVisitor& visitor) override;
+};
+
 class AstStat;
 using AstStatPtr = std::unique_ptr<AstStat>;
 
@@ -222,6 +235,7 @@ public:
     virtual void visitLiteralStringExpr(AstExprLiteralString& expr) = 0;
     virtual void visitLiteralCharExpr(AstExprLiteralChar& expr) = 0;
     virtual void visitVariableExpr(AstExprVariable& expr) = 0;
+    virtual void visitAssignmentExpr(AstExprAssignment& expr) = 0;
 
     virtual void visitVarDeclStat(AstStatVarDecl& stat) = 0;
     virtual void visitExpressionStat(AstStatExpression& stat) = 0;

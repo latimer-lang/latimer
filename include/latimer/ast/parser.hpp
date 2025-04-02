@@ -20,6 +20,7 @@ private:
     Utils::ErrorHandler& errorHandler_;
 
     AstExprPtr expression();
+    AstExprPtr assignment();
     AstExprPtr ternary();
     AstExprPtr logical();
     AstExprPtr bitwise();

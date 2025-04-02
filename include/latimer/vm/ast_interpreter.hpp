@@ -10,11 +10,12 @@
 
 class Environment {
 public:
-    std::unordered_map<std::string, Runtime::Value> values;
+    std::unordered_map<std::string, Runtime::Value> values_;
 
     explicit Environment();
     
-    void define(std::string, Runtime::Value value);
+    void define(std::string name, Runtime::Value value);
+    void assign(Token name, Runtime::Value value);
     Runtime::Value get(Token name);
 };
 
@@ -42,10 +43,9 @@ private:
     void visitLiteralStringExpr(AstExprLiteralString& expr) override;
     void visitLiteralCharExpr(AstExprLiteralChar& expr) override;
     void visitVariableExpr(AstExprVariable& expr) override;
+    void visitAssignmentExpr(AstExprAssignment& expr) override;
 
     void visitVarDeclStat(AstStatVarDecl& stat) override;
     void visitExpressionStat(AstStatExpression& stat) override;
     void visitPrintStat(AstStatPrint& stat) override;
-
-    inline std::string toString(Runtime::Value value);
 };

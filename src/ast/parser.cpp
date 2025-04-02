@@ -17,7 +17,25 @@ std::vector<AstStatPtr> Parser::parse() {
 }
 
 AstExprPtr Parser::expression() {
-    return ternary();
+    return assignment();
+}
+
+AstExprPtr Parser::assignment() {
+    AstExprPtr expr = ternary();
+
+    if (match({TokenType::EQUAL})) {
+        Token equals = previous();
+        AstExprPtr value = assignment();
+
+        if (auto varExpr = dynamic_cast<AstExprVariable*>(expr.get())) {
+            Token name = varExpr->name_;
+            return std::make_unique<AstExprAssignment>(varExpr->line_, name, std::move(value));
+        }
+
+        error(equals, "Invalid lvalue for an assignment.");
+    }
+
+    return expr;
 }
 
 AstExprPtr Parser::ternary() {

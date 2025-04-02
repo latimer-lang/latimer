@@ -24,7 +24,7 @@ declaration    → varDeclStat
 statement      → exprStmt
                | printStmt
 varDeclStat    → varType IDENTIFIER ( "=" expression )? ";"
-varType        → BOOL_TY | INT_TY | FLOAT_TY | CHAR_TY | STRING_TY
+varType        → "bool" | "int" | "float" | "char" | "string"
 exprStat       → expression ";"
 printStat      → "print" expression ";"
 ```
@@ -33,7 +33,8 @@ printStat      → "print" expression ";"
 This section consists of Context-Free Grammar used by Latimer's parser for expressions.
 
 ```
-expression → ternary
+expression → assignment
+assignment → IDENTIFIER "=" assignment | ternary
 ternary → logical ( "?" | logical ":" ternary )?
 logical → bitwise ( ( "||" | "&&" ) logical )*
 bitwise → equality ( ( "|" | "&" | "^" ) equality )*
