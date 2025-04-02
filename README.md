@@ -37,7 +37,6 @@ clang-format -i **/*.cpp **/*.hpp
 - [x] might have to specify integer literal value to be `int32_t`
 - [ ] add support for walrus operators (assignment expressions)
 - [ ] remove PRINT Token after completionß
-- [ ] support both semicolon and newline
 
 ### Parsing
 - [x] create document for defining grammar for expressions
@@ -47,6 +46,7 @@ clang-format -i **/*.cpp **/*.hpp
 - [ ] watch out when parsing `else if`
 
 ### Semantic Analysis
+- [ ] BIG type system incoming...
 
 ### Code Generation
 
