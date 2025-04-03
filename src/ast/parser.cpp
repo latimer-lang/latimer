@@ -10,8 +10,11 @@ Parser::Parser(std::vector<Token> tokens, Utils::ErrorHandler& errorHandler)
 
 std::vector<AstStatPtr> Parser::parse() {
     std::vector<AstStatPtr> statements;
-    while (!isAtEnd())
-        statements.push_back(std::move(declaration()));
+    while (!isAtEnd()) {
+        AstStatPtr stat = declaration();
+        if (stat)
+            statements.push_back(std::move(stat));
+    }
 
     return statements; // Note: return-value optimization (RVO) uses move semantics here. so vector unique ptr is not copied, and thus keeping things safe
 }

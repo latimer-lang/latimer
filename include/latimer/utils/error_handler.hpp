@@ -19,6 +19,13 @@ public:
         , token_(token) {}
 };
 
+class InternalCompilerError : public std::runtime_error {
+public:
+
+    explicit InternalCompilerError(const std::string& msg)
+        : std::runtime_error(msg) {}
+};
+
 namespace Utils {
 
 struct ErrorHandler {

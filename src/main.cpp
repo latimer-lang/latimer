@@ -12,30 +12,22 @@
 #include <latimer/ast/parser.hpp>
 #include <latimer/vm/ast_interpreter.hpp>
 
-Utils::ErrorHandler errorHandler;
-AstInterpreter interpreter(errorHandler, std::make_unique<Environment>());
-
-void run(std::string src) { // TODO: wtf is going on with `1 < 3 : 4 ? 2`
-    Lexer lexer = Lexer(src, errorHandler);
-    std::vector<Token> tokens = lexer.scanTokens();
-
-    Parser parser = Parser(tokens, errorHandler);
-    std::vector<AstStatPtr> statements = parser.parse();
-
-    if (errorHandler.hadError_) return;
-
-    interpreter.interpret(statements);
-}
-
 void runRepl() {
+    Utils::ErrorHandler errorHandler;
+    AstInterpreter interpreter(errorHandler, std::make_unique<Environment>());
     std::string input;
 
     while (true) {
         std::cout << "> ";
         std::getline(std::cin, input);
 
-        run(input);
-        errorHandler.hadError_ = false;
+        Lexer lexer = Lexer(input, errorHandler);
+        std::vector<Token> tokens = lexer.scanTokens();
+
+        Parser parser = Parser(tokens, errorHandler);
+        std::vector<AstStatPtr> statements = parser.parse();
+
+        interpreter.interpret(statements);
     }
 }
 
@@ -48,13 +40,22 @@ void runFile(std::string filePath) {
 
     std::stringstream buf;
     buf << file.rdbuf();
-    run(buf.str());
 
+    Utils::ErrorHandler errorHandler;
+    AstInterpreter interpreter(errorHandler, std::make_unique<Environment>());
+
+    Lexer lexer = Lexer(buf.str(), errorHandler);
+    std::vector<Token> tokens = lexer.scanTokens();
+
+    Parser parser = Parser(tokens, errorHandler);
+    std::vector<AstStatPtr> statements = parser.parse();
     if (errorHandler.hadError_) std::exit(65);
+
+    interpreter.interpret(statements);
     if (errorHandler.hadRuntimeError_) std::exit(70);
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) { // TODO: wtf is going on with `1 < 3 : 4 ? 2`
     switch (argc) {
         case 1:
             runRepl();

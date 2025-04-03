@@ -1,3 +1,4 @@
+#include "latimer/utils/error_handler.hpp"
 #include <latimer/vm/ast_interpreter.hpp>
 
 #include <iostream>
@@ -28,7 +29,7 @@ void Environment::assign(Token name, Runtime::Value value) {
         return;
     }
 
-    throw new RuntimeError(name, "Cannot assign value " + Runtime::toString(value) + " to undefined variable '" + name.lexeme_ + "'.");
+    throw RuntimeError(name, "Cannot assign value " + Runtime::toString(value) + " to undefined variable '" + name.lexeme_ + "'.");
 }
 
 Runtime::Value Environment::get(Token name) {
@@ -48,10 +49,15 @@ AstInterpreter::AstInterpreter(Utils::ErrorHandler& errorHandler, EnvironmentPtr
 void AstInterpreter::interpret(const std::vector<AstStatPtr>& statements) {
     try {
         for (const AstStatPtr& stat : statements) {
+            if (!stat) {
+                throw InternalCompilerError("[Internal Compiler Error]: nullptr statement in AST list.");
+            }
             execute(*stat);
         }
     } catch (RuntimeError error) {
         errorHandler_.runtimeError(error);
+    } catch (InternalCompilerError error) {
+        std::cerr << error.what() << std::endl;
     }
 }
 
@@ -94,7 +100,7 @@ void AstInterpreter::visitUnaryExpr(AstExprUnary& expr) {
             else
                 throw RuntimeError(expr.op_, "Unary minus expects number.");
         default:
-            throw RuntimeError(expr.op_, "[Internal Compiler Error]: Unexpected Unary Operator: " + expr.op_.stringifyTokenType() + ".");
+            throw InternalCompilerError("[Internal Compiler Error]: Unexpected Unary Operator: " + expr.op_.stringifyTokenType() + ".");
             break;
     }
 }
@@ -277,7 +283,7 @@ void AstInterpreter::visitBinaryExpr(AstExprBinary& expr) {
                 throw RuntimeError(expr.op_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " && " + "'" + Runtime::toString(right) + "'.");
             break;
         default:
-            throw RuntimeError(expr.op_, "[Internal Compiler Error]: Unexpected Binary Operator: " + expr.op_.stringifyTokenType() + ".");
+            throw InternalCompilerError("[Internal Compiler Error]: Unexpected Binary Operator: " + expr.op_.stringifyTokenType() + ".");
     }
 }
 
