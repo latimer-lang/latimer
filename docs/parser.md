@@ -21,12 +21,14 @@ This section consists of Context-Free Grammar used by Latimer's parser for state
 program        → declaration* END_OF_FILE
 declaration    → varDeclStat
                | statement
-statement      → exprStmt
-               | printStmt
 varDeclStat    → varType IDENTIFIER ( "=" expression )? ";"
 varType        → "bool" | "int" | "float" | "char" | "string"
+statement      → exprStmt
+               | printStmt
+               | block
 exprStat       → expression ";"
 printStat      → "print" expression ";"
+block          → "{" declaration* "}"
 ```
 
 ## Expressions

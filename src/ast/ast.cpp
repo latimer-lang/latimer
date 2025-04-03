@@ -59,3 +59,7 @@ void AstStatExpression::accept(AstVisitor& visitor) {
 void AstStatPrint::accept(AstVisitor& visitor) {
     visitor.visitPrintStat(*this);
 }
+
+void AstStatBlock::accept(AstVisitor& visitor) {
+    visitor.visitBlockStat(*this);
+}

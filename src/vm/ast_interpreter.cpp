@@ -6,7 +6,12 @@
 #include <latimer/utils/macros.hpp>
 
 Environment::Environment()
-    : values_() {}
+    : values_()
+    , enclosing_() {}
+
+Environment::Environment(Environment* enclosing)
+    : values_()
+    , enclosing_(enclosing) {}
 
 void Environment::define(std::string name, Runtime::Value value) {
     values_.insert({name, value});
@@ -18,6 +23,11 @@ void Environment::assign(Token name, Runtime::Value value) {
         return;
     }
 
+    if (enclosing_ != NULL) {
+        enclosing_->assign(name, value);
+        return;
+    }
+
     throw new RuntimeError(name, "Cannot assign value " + Runtime::toString(value) + " to undefined variable '" + name.lexeme_ + "'.");
 }
 
@@ -25,12 +35,15 @@ Runtime::Value Environment::get(Token name) {
     if (values_.find(name.lexeme_) != values_.end())
         return values_.at(name.lexeme_);
 
+    if (enclosing_ != NULL)
+        return enclosing_->get(name);
+
     throw RuntimeError(name, "Variable '" + name.lexeme_ + "' has not been declared.");
 }
 
-AstInterpreter::AstInterpreter(Utils::ErrorHandler& errorHandler, Environment& env)
+AstInterpreter::AstInterpreter(Utils::ErrorHandler& errorHandler, EnvironmentPtr env)
     : errorHandler_(errorHandler)
-    , env_(env) {}
+    , env_(std::move(env)) {}
 
 void AstInterpreter::interpret(const std::vector<AstStatPtr>& statements) {
     try {
@@ -302,12 +315,12 @@ void AstInterpreter::visitLiteralCharExpr(AstExprLiteralChar& expr) {
 }
 
 void AstInterpreter::visitVariableExpr(AstExprVariable& expr) {
-    result_ = env_.get(expr.name_);
+    result_ = env_->get(expr.name_);
 }
 
 void AstInterpreter::visitAssignmentExpr(AstExprAssignment& expr) {
     Runtime::Value value = evaluate(*expr.value_);
-    env_.assign(expr.name_, value);
+    env_->assign(expr.name_, value);
     result_ = value;
 }
 
@@ -316,7 +329,7 @@ void AstInterpreter::visitVarDeclStat(AstStatVarDecl& stat) {
     if (stat.initializer_ != NULL)
         value = evaluate(*stat.initializer_);
 
-    env_.define(stat.name_.lexeme_, value);
+    env_->define(stat.name_.lexeme_, value);
 }
 
 void AstInterpreter::visitExpressionStat(AstStatExpression& stat) {
@@ -326,4 +339,18 @@ void AstInterpreter::visitExpressionStat(AstStatExpression& stat) {
 void AstInterpreter::visitPrintStat(AstStatPrint& stat) {
     Runtime::Value output = evaluate(*stat.expr_);
     std::cout << Runtime::toString(output) << std::endl;
+}
+
+void AstInterpreter::visitBlockStat(AstStatBlock& stat) {
+    executeBlocK(stat.body_, std::make_unique<Environment>(env_.get()));
+}
+
+void AstInterpreter::executeBlocK(const std::vector<AstStatPtr>& body, EnvironmentPtr localEnv) {
+    EnvironmentPtr previous = std::move(env_); // TODO: add environment guard. If execute(...) throws an error we need to make sure to restore environment properly
+    env_ = std::move(localEnv);
+
+    for (const AstStatPtr& stat : body)
+        execute(*stat);
+
+    env_ = std::move(previous);
 }

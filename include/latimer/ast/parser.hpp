@@ -37,6 +37,7 @@ private:
     AstStatPtr varDeclStat();
     AstStatPtr exprStat();
     AstStatPtr printStat();
+    AstStatPtr blockStat();
 
     bool match(std::initializer_list<TokenType> types);
     bool check(TokenType type);

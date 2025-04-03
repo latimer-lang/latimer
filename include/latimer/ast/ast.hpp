@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <latimer/lexical_analysis/token.hpp>
 
@@ -12,7 +13,7 @@ class AstNode {
     int line_;
     
     explicit AstNode(int line)
-    : line_(line) {}
+        : line_(line) {}
 };
 
 class AstExpr;
@@ -220,6 +221,17 @@ public:
     void accept(AstVisitor& visitor) override;
 };
 
+class AstStatBlock : public AstStat {
+public:
+    std::vector<AstStatPtr> body_;
+
+    explicit AstStatBlock(int line, std::vector<AstStatPtr> body)
+        : AstStat(line)
+        , body_(std::move(body)) {}
+    
+    void accept(AstVisitor& visitor) override;
+};
+
 class AstVisitor {
 public:
     ~AstVisitor() = default;
@@ -240,4 +252,5 @@ public:
     virtual void visitVarDeclStat(AstStatVarDecl& stat) = 0;
     virtual void visitExpressionStat(AstStatExpression& stat) = 0;
     virtual void visitPrintStat(AstStatPrint& stat) = 0;
+    virtual void visitBlockStat(AstStatBlock& stat) = 0;
 };

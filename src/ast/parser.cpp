@@ -202,6 +202,8 @@ AstStatPtr Parser::declaration() {
 AstStatPtr Parser::statement() {
     if (match({TokenType::PRINT}))
         return printStat();
+    if (match({TokenType::LEFT_BRACE}))
+        return blockStat();
 
     return exprStat();
 }
@@ -228,6 +230,17 @@ AstStatPtr Parser::printStat() {
     AstExprPtr expr = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after expression.");
     return std::make_unique<AstStatPrint>(expr->line_, std::move(expr));
+}
+
+AstStatPtr Parser::blockStat() {
+    Token leftBrace = previous();
+    std::vector<AstStatPtr> body;
+
+    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd())
+        body.push_back(declaration());
+    
+    consume(TokenType::RIGHT_BRACE, "Expect '}' to terminate block statements.");
+    return std::make_unique<AstStatBlock>(leftBrace.line_, std::move(body));
 }
 
 bool Parser::match(std::initializer_list<TokenType> types) {

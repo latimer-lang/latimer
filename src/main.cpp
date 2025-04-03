@@ -13,8 +13,7 @@
 #include <latimer/vm/ast_interpreter.hpp>
 
 Utils::ErrorHandler errorHandler;
-Environment environment;
-AstInterpreter interpreter(errorHandler, environment);
+AstInterpreter interpreter(errorHandler, std::make_unique<Environment>());
 
 void run(std::string src) { // TODO: wtf is going on with `1 < 3 : 4 ? 2`
     Lexer lexer = Lexer(src, errorHandler);
