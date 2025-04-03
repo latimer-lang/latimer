@@ -1,6 +1,6 @@
 # Latimer
 
-A general-purpose statically-typed interpreted language designed for efficiency, safety, and developer productivity.
+A statically-typed interpreted programming language built for speed, safety, and clarity.
 
 ## Compiling the Compiler
 
