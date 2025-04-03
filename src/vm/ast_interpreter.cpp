@@ -352,11 +352,16 @@ void AstInterpreter::visitBlockStat(AstStatBlock& stat) {
 }
 
 void AstInterpreter::executeBlocK(const std::vector<AstStatPtr>& body, EnvironmentPtr localEnv) {
-    EnvironmentPtr previous = std::move(env_); // TODO: add environment guard. If execute(...) throws an error we need to make sure to restore environment properly
-    env_ = std::move(localEnv);
+    // Very Important to have this guard bc it guarantees that our environment is properly restored when execute(...) throws an error
+    // Consider this scenario in REPL:
+    // > int a = 1;
+    // > { int a = 2; some runtime error code }
+    // > print a;
+    // without the guard, prints 2 (which is incorrect); with guard, prints 1 (correct)
+    EnvironmentGuard guard(env_, std::move(localEnv));
 
-    for (const AstStatPtr& stat : body)
+    for (const AstStatPtr& stat : body) {
         execute(*stat);
-
-    env_ = std::move(previous);
+        throw InternalCompilerError("OOPS");
+    }
 }

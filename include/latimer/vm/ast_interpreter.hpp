@@ -24,6 +24,22 @@ public:
     Runtime::Value get(Token name);
 };
 
+class EnvironmentGuard {
+public:
+    EnvironmentPtr& target_;
+    EnvironmentPtr previous_;
+
+    EnvironmentGuard(EnvironmentPtr& env, EnvironmentPtr newEnv)
+        : target_(env)
+        , previous_(std::move(env)) {
+            target_ = std::move(newEnv);
+    }
+
+    ~EnvironmentGuard() {
+        target_ = std::move(previous_);
+    }
+};
+
 class AstInterpreter : public AstVisitor {
 public:
     explicit AstInterpreter(Utils::ErrorHandler& errorHandler, EnvironmentPtr env);
