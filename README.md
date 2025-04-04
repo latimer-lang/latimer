@@ -1,59 +1,42 @@
-# Latimer
+<div align="center">
+  <picture>
+    <source srcset="https://github.com/user-attachments/assets/f5f950c3-247d-4c65-aece-adf8a74ad737" media="(prefers-color-scheme: dark)">
+    <source srcset="https://github.com/user-attachments/assets/3263d08e-6d07-45b3-a51b-05524286d860" media="(prefers-color-scheme: light)">
+    <img src="https://github.com/user-attachments/assets/3263d08e-6d07-45b3-a51b-05524286d860" alt="latimer-social-wide-light" />
+  </picture>
 
-A statically-typed interpreted programming language built for speed, safety, and clarity.
+[Website][Latimer] | [Getting started] | [Documentation] | [Contributing]
+</div>
 
-## Compiling the Compiler
+This is the main source code repository for [Latimer]. It contains the compiler, standard library, and documentation.
 
-```bash
-# assuming you are in the root directory
-cmake -S . -B build
-# -S . -> source directory is the current directory (aka the root)
-# -B build -> build output goes into the build directory (which you should have created)
-```
+[Latimer]: http://www.latimer-lang.org/
+[Getting Started]: https://www.latimer-lang.org/docs/introduction/getting-started/
+[Documentation]: https://www.latimer-lang.org/docs/
+[Contributing]: CONTRIBUTING.md
 
-## Code Style
+## Why Latimer?
 
-Run the clang-format on all files
-```bash
-clang-format -i **/*.cpp **/*.hpp
-```
+- **Simple:** Latimer features a clear, structured syntax inspired by Java, C++, and Python, making it easy to learn, intuitive to read, and simple to maintain.
 
-## TODOS
+- **Safe:** Latimer's type system enables safe scripting by enforcing strict typing rules, preventing errors early, and ensuring reliability.
 
-### DOC
-- [ ] doc/language grammar isn't very accurate. lk change to just examples?
+- **Efficient:** Latimer is optimized for fast execution and iteration, allowing developers to iterate quickly on scripts without losing runtime performance.
 
-### MAIN
-- [x] read user input one line at a time (currently reading by spaces)
-- [x] support taking in files
-- [ ] wtf is going on w/ `1 < 3 : 4 ? 2`
+## Quick Start
 
-### Lexical Analysis
-- [x] build error handler
-- [x] build lexer
-- [x] change reserved keywords ("NIL" -> NULL, remove "VAR")
-- [x] add support for binary operators (>>, <<, |, &, ^, ~)
-- [x] add support for ternary expressions (?, :)
-- [x] might have to specify integer literal value to be `int32_t`
-- [ ] add support for walrus operators (assignment expressions)
-- [ ] remove PRINT Token after completionß
+Read [Getting Started] from the [Documentation].
 
-### Parsing
-- [x] create document for defining grammar for expressions
-- [x] AST classes for expressions
-- [ ] AST classes for statements, and other things
-- [x] implement AST pretty printer for debugging
-- [ ] watch out when parsing `else if`
+## Getting Help
 
-### Semantic Analysis
-- [ ] BIG type system incoming...
+See [Discussions] for a list of forums and Q&As.
 
-### Code Generation
+[Discussions]: https://github.com/latimer-lang/latimer/discussions
 
-### AstInterpreter
-- [ ] implement short circuiting to logical operators
-- [ ] more specific errors messages (ex: trying to add "a" + 'b' gives: "Unsupported operands for 'a' + 'b'". but ideally, should be "a" + 'b' to distinguish string and char)
-- [x] possible move out type R to another class for more modularity
+## Contributing
 
-### MISC
-- [ ] pretty printer for statements
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+Latimer is not yet licensed!
