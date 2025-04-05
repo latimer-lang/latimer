@@ -163,7 +163,7 @@ struct Token {
         else if (std::holds_alternative<char>(literal_))
             return escapeChar(std::get<char>(literal_));
         else
-            return "NULL";
+            return "null";
     }
 
     std::string escapeChar(char c) {

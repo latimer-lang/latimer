@@ -24,7 +24,7 @@ void Environment::assign(Token name, Runtime::Value value) {
         return;
     }
 
-    if (enclosing_ != NULL) {
+    if (enclosing_ != nullptr) {
         enclosing_->assign(name, value);
         return;
     }
@@ -36,10 +36,10 @@ Runtime::Value Environment::get(Token name) {
     if (values_.find(name.lexeme_) != values_.end())
         return values_.at(name.lexeme_);
 
-    if (enclosing_ != NULL)
+    if (enclosing_ != nullptr)
         return enclosing_->get(name);
 
-    throw RuntimeError(name, "Variable '" + name.lexeme_ + "' has not been declared.");
+    throw RuntimeError(name, "Variable '" + name.lexeme_ + "' has not been declared or initialized.");
 }
 
 AstInterpreter::AstInterpreter(Utils::ErrorHandler& errorHandler, EnvironmentPtr env)
@@ -331,10 +331,10 @@ void AstInterpreter::visitAssignmentExpr(AstExprAssignment& expr) {
 }
 
 void AstInterpreter::visitVarDeclStat(AstStatVarDecl& stat) {
-    Runtime::Value value = std::monostate{};
-    if (stat.initializer_ != NULL)
-        value = evaluate(*stat.initializer_);
+    if (stat.initializer_ == nullptr)
+        return;
 
+    Runtime::Value value = evaluate(*stat.initializer_);
     env_->define(stat.name_.lexeme_, value);
 }
 
@@ -362,6 +362,5 @@ void AstInterpreter::executeBlocK(const std::vector<AstStatPtr>& body, Environme
 
     for (const AstStatPtr& stat : body) {
         execute(*stat);
-        throw InternalCompilerError("OOPS");
     }
 }

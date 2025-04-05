@@ -198,7 +198,7 @@ AstStatPtr Parser::declaration() {
         return statement();
     } catch (ParseError error) {
         synchronize();
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -215,7 +215,7 @@ AstStatPtr Parser::varDeclStat() {
     Token type = previous();
     Token name = consume(TokenType::IDENTIFIER, "Expect variable name.");
 
-    AstExprPtr initializer = NULL;
+    AstExprPtr initializer = nullptr;
     if (match({TokenType::EQUAL}))
         initializer = expression();
 

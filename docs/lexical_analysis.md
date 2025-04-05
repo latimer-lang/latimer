@@ -19,7 +19,7 @@ literal → NUMBER
         | CHAR
         | "true"
         | "false"
-        | "NULL"
+        | "null"
 ```
 
 ## Group Expressions

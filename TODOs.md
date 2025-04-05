@@ -34,6 +34,8 @@
 - [ ] implement short circuiting to logical operators
 - [ ] more specific errors messages (ex: trying to add "a" + 'b' gives: "Unsupported operands for 'a' + 'b'". but ideally, should be "a" + 'b' to distinguish string and char)
 - [x] possible move out type R to another class for more modularity
+- [x] make default value of variable declarations nothing (std::monostate) instead of like nil, make sure it errors if the undeclared variable is being evaluated
 
 ### MISC
 - [ ] pretty printer for statements
+- [ ] allow repl to take in expressions (lk maybe not)
