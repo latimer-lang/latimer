@@ -57,20 +57,22 @@ enum class TokenType : uint8_t {
     ELSE = 39,
     FOR = 40,
     IF = 41,
-    NIL = 42,
+    NIL = 42, // "null" in Latimer, but NULL is reserved in C++
     PRINT = 43,
     RETURN = 44,
     SUPER = 45,
     THIS = 46,
     WHILE = 47,
+    BREAK = 48,
+    CONTINUE = 49,
 
     // Types
-    BOOL_TY = 48,
-    INT_TY = 49,
-    FLOAT_TY = 50,
-    CHAR_TY = 51,
-    STRING_TY = 52,
-    VOID_TY = 53, // for function return types
+    BOOL_TY = 50,
+    INT_TY = 51,
+    FLOAT_TY = 52,
+    CHAR_TY = 53,
+    STRING_TY = 54,
+    VOID_TY = 55, // for function return types
 
     END_OF_FILE,
 };
@@ -137,6 +139,8 @@ struct Token {
             case TokenType::SUPER: return "SUPER";
             case TokenType::THIS: return "THIS";
             case TokenType::WHILE: return "WHILE";
+            case TokenType::BREAK: return "BREAK";
+            case TokenType::CONTINUE: return "CONTINUE";
             case TokenType::BOOL_TY: return "BOOL_TY";
             case TokenType::INT_TY: return "INT_TY";
             case TokenType::FLOAT_TY: return "FLOAT_TY";

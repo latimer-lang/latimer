@@ -23,10 +23,20 @@ declaration    → varDeclStat
                | statement
 varDeclStat    → varType IDENTIFIER ( "=" expression )? ";"
 varType        → "bool" | "int" | "float" | "char" | "string"
-statement      → exprStmt
-               | printStmt
+statement      → exprStat
+               | ifStat
+               | whileStat
+               | forStat
+               | breakStat
+               | continueStat
+               | printStat
                | block
 exprStat       → expression ";"
+ifStat         → "if" "(" expression ")" block ( "else" ifStat | "else" block )?
+whileStat      → "while" "(" expression ")" block
+forStat        → "for" "(" ( varDeclStat | exprStat | ";" ) ";" expression? ";" expression? ";" ")" block
+breakStat      → "break" ";"
+continueStat   → "continue" ";"
 printStat      → "print" expression ";"
 block          → "{" declaration* "}"
 ```
@@ -38,7 +48,7 @@ This section consists of Context-Free Grammar used by Latimer's parser for expre
 expression → assignment
 assignment → IDENTIFIER "=" assignment | ternary
 ternary → logical ( "?" | logical ":" ternary )?
-logical → bitwise ( ( "||" | "&&" ) logical )*
+logical → bitwise ( ( "||" | "&&" ) bitwise )*
 bitwise → equality ( ( "|" | "&" | "^" ) equality )*
 equality → comparison ( ( "==" | "!=" ) comparison )*
 comparison → bitshift ( ( ">" | ">=" | "<" | "<=" ) bitshift )*

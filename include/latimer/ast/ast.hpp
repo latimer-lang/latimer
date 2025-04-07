@@ -210,6 +210,67 @@ public:
     void accept(AstVisitor& visitor) override;
 };
 
+class AstStatIfElse : public AstStat {
+public:
+    AstExprPtr condition_;
+    AstStatPtr thenBranch_;
+    AstStatPtr elseBranch_;
+
+    explicit AstStatIfElse(int line, AstExprPtr condition, AstStatPtr thenBranch, AstStatPtr elseBranch)
+        : AstStat(line)
+        , condition_(std::move(condition))
+        , thenBranch_(std::move(thenBranch))
+        , elseBranch_(std::move(elseBranch)) {}
+
+    void accept(AstVisitor& visitor) override;
+};
+
+class AstStatWhile : public AstStat {
+public:
+    AstExprPtr condition_;
+    AstStatPtr body_;
+
+    explicit AstStatWhile(int line, AstExprPtr condition, AstStatPtr body)
+        : AstStat(line)
+        , condition_(std::move(condition))
+        , body_(std::move(body)) {}
+
+    void accept(AstVisitor& visitor) override;
+};
+
+class AstStatFor : public AstStat {
+public:
+    AstStatPtr initializer_;
+    AstExprPtr condition_;
+    AstExprPtr increment_;
+    AstStatPtr body_;
+
+    explicit AstStatFor(int line, AstStatPtr initializer, AstExprPtr condition, AstExprPtr increment, AstStatPtr body)
+        : AstStat(line)
+        , initializer_(std::move(initializer))
+        , condition_(std::move(condition))
+        , increment_(std::move(increment))
+        , body_(std::move(body)) {}
+
+    void accept(AstVisitor& visitor) override;
+};
+
+class AstStatBreak : public AstStat {
+public:
+    explicit AstStatBreak(int line)
+        : AstStat(line) {}
+
+    void accept(AstVisitor& visitor) override;
+};
+
+class AstStatContinue : public AstStat {
+public:
+    explicit AstStatContinue(int line)
+        : AstStat(line) {}
+    
+    void accept(AstVisitor& visitor) override;
+};
+
 class AstStatPrint : public AstStat {
 public:
     AstExprPtr expr_;
@@ -251,6 +312,11 @@ public:
 
     virtual void visitVarDeclStat(AstStatVarDecl& stat) = 0;
     virtual void visitExpressionStat(AstStatExpression& stat) = 0;
+    virtual void visitIfElseStat(AstStatIfElse& stat) = 0;
+    virtual void visitForStat(AstStatFor& stat) = 0;
+    virtual void visitWhileStat(AstStatWhile& stat) = 0;
+    virtual void visitBreakStat(AstStatBreak& stat) = 0;
+    virtual void visitContinueStat(AstStatContinue& stat) = 0;
     virtual void visitPrintStat(AstStatPrint& stat) = 0;
     virtual void visitBlockStat(AstStatBlock& stat) = 0;
 };

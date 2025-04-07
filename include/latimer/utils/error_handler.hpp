@@ -12,11 +12,11 @@ public:
 
 class RuntimeError : public std::runtime_error {
 public:
-    Token token_;
+    int line_;
 
-    explicit RuntimeError(Token token, const std::string& msg)
+    explicit RuntimeError(int line, const std::string& msg)
         : std::runtime_error(msg)
-        , token_(token) {}
+        , line_(line) {}
 };
 
 class InternalCompilerError : public std::runtime_error {
@@ -54,7 +54,7 @@ public:
     }
 
     void runtimeError(RuntimeError error) {
-        std::cerr << "[line " << error.token_.line_ << "] Error: " << error.what() << std::endl;
+        std::cerr << "[line " << error.line_ << "] Error: " << error.what() << std::endl;
         hadRuntimeError_ = true;
     }
 };

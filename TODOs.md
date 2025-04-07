@@ -17,16 +17,18 @@
 - [x] might have to specify integer literal value to be `int32_t`
 - [ ] add support for walrus operators (assignment expressions)
 - [ ] remove PRINT Token after completionß
+- [x] add support for `break;` and `continue;`
 
 ### Parsing
 - [x] create document for defining grammar for expressions
 - [x] AST classes for expressions
 - [ ] AST classes for statements, and other things
 - [x] implement AST pretty printer for debugging
-- [ ] watch out when parsing `else if`
+- [x] watch out when parsing `else if`
 
 ### Semantic Analysis
 - [ ] BIG type system incoming...
+- [ ] semantic error for `break` or `continue` not being in the loop
 
 ### Code Generation
 
@@ -39,3 +41,4 @@
 ### MISC
 - [ ] pretty printer for statements
 - [ ] allow repl to take in expressions (lk maybe not)
+- [x] documentation website add operators

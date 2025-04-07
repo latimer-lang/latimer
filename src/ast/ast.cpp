@@ -56,6 +56,26 @@ void AstStatExpression::accept(AstVisitor& visitor) {
     visitor.visitExpressionStat(*this);
 }
 
+void AstStatIfElse::accept(AstVisitor& visitor) {
+    visitor.visitIfElseStat(*this);
+}
+
+void AstStatWhile::accept(AstVisitor& visitor) {
+    visitor.visitWhileStat(*this);
+}
+
+void AstStatFor::accept(AstVisitor& visitor) {
+    visitor.visitForStat(*this);
+}
+
+void AstStatBreak::accept(AstVisitor &visitor) {
+    visitor.visitBreakStat(*this);
+}
+
+void AstStatContinue::accept(AstVisitor &visitor) {
+    visitor.visitContinueStat(*this);
+}
+
 void AstStatPrint::accept(AstVisitor& visitor) {
     visitor.visitPrintStat(*this);
 }

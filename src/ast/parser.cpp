@@ -46,7 +46,7 @@ AstExprPtr Parser::ternary() {
 
     if (match({TokenType::QUESTION_MARK})) {
         AstExprPtr thenBranch = logical();
-        consume(TokenType::COLON, "Expected ':' after then-branch of ternary expression.");
+        consume(TokenType::COLON, "Expect ':' after then-branch of ternary expression.");
         AstExprPtr elseBranch = ternary();
 
         expr = std::make_unique<AstExprTernary>(expr->line_, std::move(expr), std::move(thenBranch),
@@ -61,7 +61,7 @@ AstExprPtr Parser::logical() {
 
     while (match({TokenType::PIPE_PIPE, TokenType::AMPERSAND_AMPERSAND})) {
         Token op = previous();
-        AstExprPtr right = term();
+        AstExprPtr right = bitwise();
         expr = std::make_unique<AstExprBinary>(expr->line_, std::move(expr), op, std::move(right));
     }
 
@@ -205,6 +205,16 @@ AstStatPtr Parser::declaration() {
 AstStatPtr Parser::statement() {
     if (match({TokenType::PRINT}))
         return printStat();
+    if (match({TokenType::IF}))
+        return ifElseStat();
+    if (match({TokenType::WHILE}))
+        return whileStat();
+    if (match({TokenType::FOR}))
+        return forStat();
+    if (match({TokenType::BREAK}))
+        return breakStat();
+    if (match({TokenType::CONTINUE}))
+        return continueStat();
     if (match({TokenType::LEFT_BRACE}))
         return blockStat();
 
@@ -229,9 +239,84 @@ AstStatPtr Parser::exprStat() {
     return std::make_unique<AstStatExpression>(expr->line_, std::move(expr));
 }
 
+AstStatPtr Parser::ifElseStat() {
+    consume(TokenType::LEFT_PAREN, "Expect '(' before if condition.");
+    AstExprPtr condition = expression();
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after if condition.");
+
+    consume(TokenType::LEFT_BRACE, "Expect '{' to parse body of if statement.");
+    AstStatPtr thenBranch = blockStat();
+
+    AstStatPtr elseBranch = nullptr;
+    if (match({TokenType::ELSE})) {
+        if (match({TokenType::IF})) { // parse `else if`
+            elseBranch = ifElseStat();
+        } else {
+            consume(TokenType::LEFT_BRACE, "Expect '{' to begin 'else' block.");
+            elseBranch = blockStat();
+        }
+    }
+
+    return std::make_unique<AstStatIfElse>(condition->line_, std::move(condition), std::move(thenBranch), std::move(elseBranch));
+}
+
+AstStatPtr Parser::whileStat() {
+    consume(TokenType::LEFT_PAREN, "Expect '(' before while condition.");
+    AstExprPtr condition = expression();
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after while condition.");
+
+    consume(TokenType::LEFT_BRACE, "Expect '{' to parse body of while loop.");
+    AstStatPtr body = blockStat();
+
+    return std::make_unique<AstStatWhile>(condition->line_, std::move(condition), std::move(body));
+}
+
+AstStatPtr Parser::forStat() {
+    Token forToken = previous();
+    consume(TokenType::LEFT_PAREN, "Expect '(' to begin for loop clause.");
+
+    AstStatPtr initializer;
+    if (match({TokenType::SEMICOLON}))
+        initializer = nullptr;
+    else if (match({TokenType::BOOL_TY, TokenType::INT_TY, TokenType::FLOAT_TY, TokenType::CHAR_TY, TokenType::STRING_TY}))
+        initializer = varDeclStat();
+    else
+        initializer = exprStat();
+
+    AstExprPtr condition = nullptr;
+    if (!check(TokenType::SEMICOLON))
+        condition = expression();
+    consume(TokenType::SEMICOLON, "Expect ';' after loop condition.");
+
+    AstExprPtr increment = nullptr;
+    if (!check(TokenType::RIGHT_PAREN))
+      increment = expression();
+
+    consume(TokenType::RIGHT_PAREN, "Expect ')' to close for loop clause.");
+
+    consume(TokenType::LEFT_BRACE, "Expect '{' to parse body of for loop.");
+    AstStatPtr body = blockStat();
+
+    return std::make_unique<AstStatFor>(forToken.line_, std::move(initializer), std::move(condition), std::move(increment), std::move(body));
+}
+
+AstStatPtr Parser::breakStat() {
+    Token breakToken = previous();
+    consume(TokenType::SEMICOLON, "Expect ';' after break statement.");
+
+    return std::make_unique<AstStatBreak>(breakToken.line_);
+}
+
+AstStatPtr Parser::continueStat() {
+    Token continueToken = previous();
+    consume(TokenType::SEMICOLON, "Expect ';' after continue statement.");
+
+    return std::make_unique<AstStatBreak>(continueToken.line_);
+}
+
 AstStatPtr Parser::printStat() {
     AstExprPtr expr = expression();
-    consume(TokenType::SEMICOLON, "Expect ';' after expression.");
+    consume(TokenType::SEMICOLON, "Expect ';' after print statement.");
     return std::make_unique<AstStatPrint>(expr->line_, std::move(expr));
 }
 

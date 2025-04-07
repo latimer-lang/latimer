@@ -68,8 +68,16 @@ private:
 
     void visitVarDeclStat(AstStatVarDecl& stat) override;
     void visitExpressionStat(AstStatExpression& stat) override;
+    void visitIfElseStat(AstStatIfElse& stat) override;
+    void visitWhileStat(AstStatWhile& stat) override;
+    void visitForStat(AstStatFor& stat) override;
+    void visitBreakStat(AstStatBreak& stat) override;
+    void visitContinueStat(AstStatContinue& stat) override;
     void visitPrintStat(AstStatPrint& stat) override;
     void visitBlockStat(AstStatBlock& stat) override;
 
+    class BreakSignal : public std::exception {};
+    class ContinueSignal : public std::exception {};
+    bool requireBool(const Runtime::Value& value, int line, const std::string& errorMsg);
     void executeBlocK(const std::vector<AstStatPtr>& body, EnvironmentPtr localEnv);
 };

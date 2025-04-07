@@ -12,24 +12,26 @@ Lexer::Lexer(std::string src, Utils::ErrorHandler& errorHandler)
     , line_(1)
     , errorHandler_(errorHandler) {
     // clang-format off
-    keywords_.insert({"class",  TokenType::CLASS});
-    keywords_.insert({"else",   TokenType::ELSE});
-    keywords_.insert({"for",    TokenType::FOR});
-    keywords_.insert({"if",     TokenType::IF});
-    keywords_.insert({"null",   TokenType::NIL});
-    keywords_.insert({"print",  TokenType::PRINT});
-    keywords_.insert({"return", TokenType::RETURN});
-    keywords_.insert({"super",  TokenType::SUPER});
-    keywords_.insert({"this",   TokenType::THIS});
-    keywords_.insert({"while",  TokenType::WHILE});
-    keywords_.insert({"true",   TokenType::TRUE_LIT});
-    keywords_.insert({"false",  TokenType::FALSE_LIT});
-    keywords_.insert({"bool",   TokenType::BOOL_TY});
-    keywords_.insert({"int",    TokenType::INT_TY});
-    keywords_.insert({"float",  TokenType::FLOAT_TY});
-    keywords_.insert({"char",   TokenType::CHAR_TY});
-    keywords_.insert({"string", TokenType::STRING_TY});
-    keywords_.insert({"void",   TokenType::VOID_TY});
+    keywords_.insert({"class",   TokenType::CLASS});
+    keywords_.insert({"else",    TokenType::ELSE});
+    keywords_.insert({"for",     TokenType::FOR});
+    keywords_.insert({"if",      TokenType::IF});
+    keywords_.insert({"null",    TokenType::NIL});
+    keywords_.insert({"print",   TokenType::PRINT});
+    keywords_.insert({"return",  TokenType::RETURN});
+    keywords_.insert({"super",   TokenType::SUPER});
+    keywords_.insert({"this",    TokenType::THIS});
+    keywords_.insert({"while",   TokenType::WHILE});
+    keywords_.insert({"break",   TokenType::BREAK});
+    keywords_.insert({"continue",TokenType::CONTINUE});
+    keywords_.insert({"true",    TokenType::TRUE_LIT});
+    keywords_.insert({"false",   TokenType::FALSE_LIT});
+    keywords_.insert({"bool",    TokenType::BOOL_TY});
+    keywords_.insert({"int",     TokenType::INT_TY});
+    keywords_.insert({"float",   TokenType::FLOAT_TY});
+    keywords_.insert({"char",    TokenType::CHAR_TY});
+    keywords_.insert({"string",  TokenType::STRING_TY});
+    keywords_.insert({"void",    TokenType::VOID_TY});
     // clang-format on
 }
 

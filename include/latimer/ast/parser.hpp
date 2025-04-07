@@ -36,6 +36,11 @@ private:
     AstStatPtr statement();
     AstStatPtr varDeclStat();
     AstStatPtr exprStat();
+    AstStatPtr ifElseStat();
+    AstStatPtr whileStat();
+    AstStatPtr forStat();
+    AstStatPtr breakStat();
+    AstStatPtr continueStat();
     AstStatPtr printStat();
     AstStatPtr blockStat();
 
