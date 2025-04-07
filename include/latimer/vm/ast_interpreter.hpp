@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 #include <latimer/lexical_analysis/token.hpp>
 #include <latimer/utils/error_handler.hpp>
@@ -14,11 +15,14 @@ using EnvironmentPtr = std::unique_ptr<Environment>;
 class Environment {
 public:
     std::unordered_map<std::string, Runtime::Value> values_;
+    std::unordered_set<std::string> declared_;
     Environment* enclosing_;
 
     explicit Environment();
     explicit Environment(Environment* enclosing);
     
+    void declare(std::string name);
+    bool isDeclared(std::string name);
     void define(std::string name, Runtime::Value value);
     void assign(Token name, Runtime::Value value);
     Runtime::Value get(Token name);

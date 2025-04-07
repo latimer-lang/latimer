@@ -14,18 +14,33 @@ Environment::Environment(Environment* enclosing)
     : values_()
     , enclosing_(enclosing) {}
 
+void Environment::declare(std::string name) {
+    declared_.insert({name});
+}
+
+bool Environment::isDeclared(std::string name) {
+    return declared_.find(name) != declared_.end();
+}
+
 void Environment::define(std::string name, Runtime::Value value) {
     values_.insert({name, value});
 }
 
 void Environment::assign(Token name, Runtime::Value value) {
-    if (values_.find(name.lexeme_) != values_.end()) {
-        values_[name.lexeme_] = value;
+    std::string lexeme = name.lexeme_;
+
+    if (values_.find(lexeme) != values_.end()) {
+        values_[lexeme] = value;
         return;
     }
 
     if (enclosing_ != nullptr) {
         enclosing_->assign(name, value);
+        return;
+    }
+
+    if (isDeclared(lexeme)) {
+        define(lexeme, value);
         return;
     }
 
@@ -321,11 +336,14 @@ void AstInterpreter::visitAssignmentExpr(AstExprAssignment& expr) {
 }
 
 void AstInterpreter::visitVarDeclStat(AstStatVarDecl& stat) {
+    std::string lexeme = stat.name_.lexeme_;
+    env_->declare(lexeme);
+
     if (stat.initializer_ == nullptr)
         return;
 
     Runtime::Value value = evaluate(*stat.initializer_);
-    env_->define(stat.name_.lexeme_, value);
+    env_->define(lexeme, value);
 }
 
 void AstInterpreter::visitExpressionStat(AstStatExpression& stat) {
