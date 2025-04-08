@@ -22,7 +22,7 @@ program        → declaration* END_OF_FILE
 declaration    → varDeclStat
                | statement
 varDeclStat    → varType IDENTIFIER ( "=" expression )? ";"
-varType        → "bool" | "int" | "float" | "char" | "string"
+varType        → "bool" | "int" | "double" | "char" | "string"
 statement      → exprStat
                | ifStat
                | whileStat
@@ -55,7 +55,9 @@ comparison → bitshift ( ( ">" | ">=" | "<" | "<=" ) bitshift )*
 bitshift → term ( ( ">>" | "<<" ) term )*
 term → factor ( ( "-" | "+" ) factor )*
 factor → unary ( ( "/" | "*" | "%" ) unary )*
-unary → ( "!" | "~" | "-" ) unary | primary
+unary → ( "!" | "~" | "-" ) unary | call
+call → primary ( "(" arguments? ")" )*
+arguments → expression ( "," expression )*
 primary → NUMBER
         | STRING
         | CHARACTER

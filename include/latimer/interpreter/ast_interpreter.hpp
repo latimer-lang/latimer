@@ -7,19 +7,19 @@
 #include <latimer/lexical_analysis/token.hpp>
 #include <latimer/utils/error_handler.hpp>
 #include <latimer/ast/ast.hpp>
-#include <latimer/vm/value.hpp>
+#include <latimer/interpreter/value.hpp>
 
 class Environment;
-using EnvironmentPtr = std::unique_ptr<Environment>;
+using EnvironmentPtr = std::shared_ptr<Environment>;
 
 class Environment {
 public:
     std::unordered_map<std::string, Runtime::Value> values_;
     std::unordered_set<std::string> declared_;
-    Environment* enclosing_;
+    EnvironmentPtr enclosing_;
 
     explicit Environment();
-    explicit Environment(Environment* enclosing);
+    explicit Environment(EnvironmentPtr enclosing);
     
     void declare(std::string name);
     bool isDeclared(std::string name);
@@ -35,24 +35,25 @@ public:
 
     EnvironmentGuard(EnvironmentPtr& env, EnvironmentPtr newEnv)
         : target_(env)
-        , previous_(std::move(env)) {
-            target_ = std::move(newEnv);
+        , previous_(env) {
+            target_ = newEnv;
     }
 
     ~EnvironmentGuard() {
-        target_ = std::move(previous_);
+        target_ = previous_;
     }
 };
 
 class AstInterpreter : public AstVisitor {
 public:
-    explicit AstInterpreter(Utils::ErrorHandler& errorHandler, EnvironmentPtr env);
+    explicit AstInterpreter(Utils::ErrorHandler& errorHandler);
 
     void interpret(const std::vector<AstStatPtr>& statements);
 
 private:
     Runtime::Value result_;
     Utils::ErrorHandler& errorHandler_;
+    EnvironmentPtr globals_;
     EnvironmentPtr env_;
 
     void execute(AstStat& stat);
@@ -64,11 +65,12 @@ private:
     void visitLiteralNullExpr(AstExprLiteralNull& expr) override;
     void visitLiteralBoolExpr(AstExprLiteralBool& expr) override;
     void visitLiteralIntExpr(AstExprLiteralInt& expr) override;
-    void visitLiteralFloatExpr(AstExprLiteralFloat& expr) override;
+    void visitLiteralDoubleExpr(AstExprLiteralDouble& expr) override;
     void visitLiteralStringExpr(AstExprLiteralString& expr) override;
     void visitLiteralCharExpr(AstExprLiteralChar& expr) override;
     void visitVariableExpr(AstExprVariable& expr) override;
     void visitAssignmentExpr(AstExprAssignment& expr) override;
+    void visitCallExpr(AstExprCall& expr) override;
 
     void visitVarDeclStat(AstStatVarDecl& stat) override;
     void visitExpressionStat(AstStatExpression& stat) override;
@@ -77,7 +79,6 @@ private:
     void visitForStat(AstStatFor& stat) override;
     void visitBreakStat(AstStatBreak& stat) override;
     void visitContinueStat(AstStatContinue& stat) override;
-    void visitPrintStat(AstStatPrint& stat) override;
     void visitBlockStat(AstStatBlock& stat) override;
 
     class BreakSignal : public std::exception {};

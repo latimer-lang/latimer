@@ -17,7 +17,6 @@ Lexer::Lexer(std::string src, Utils::ErrorHandler& errorHandler)
     keywords_.insert({"for",     TokenType::FOR});
     keywords_.insert({"if",      TokenType::IF});
     keywords_.insert({"null",    TokenType::NIL});
-    keywords_.insert({"print",   TokenType::PRINT});
     keywords_.insert({"return",  TokenType::RETURN});
     keywords_.insert({"super",   TokenType::SUPER});
     keywords_.insert({"this",    TokenType::THIS});
@@ -28,7 +27,7 @@ Lexer::Lexer(std::string src, Utils::ErrorHandler& errorHandler)
     keywords_.insert({"false",   TokenType::FALSE_LIT});
     keywords_.insert({"bool",    TokenType::BOOL_TY});
     keywords_.insert({"int",     TokenType::INT_TY});
-    keywords_.insert({"float",   TokenType::FLOAT_TY});
+    keywords_.insert({"double",  TokenType::DOUBLE_TY});
     keywords_.insert({"char",    TokenType::CHAR_TY});
     keywords_.insert({"string",  TokenType::STRING_TY});
     keywords_.insert({"void",    TokenType::VOID_TY});
@@ -174,7 +173,7 @@ void Lexer::number() {
 
     std::string value = src_.substr(start_, current_ - start_);
     if (value.find('.') != std::string::npos)
-        addToken(TokenType::FLOAT_LIT, std::stof(value));
+        addToken(TokenType::DOUBLE_LIT, std::stof(value));
     else
         addToken(TokenType::INTEGER_LIT, std::stoi(value));
 }

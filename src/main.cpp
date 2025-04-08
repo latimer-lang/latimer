@@ -10,11 +10,11 @@
 #include <latimer/utils/ast_printer.hpp>
 #include <latimer/utils/error_handler.hpp>
 #include <latimer/ast/parser.hpp>
-#include <latimer/vm/ast_interpreter.hpp>
+#include <latimer/interpreter/ast_interpreter.hpp>
 
 void runRepl() {
     Utils::ErrorHandler errorHandler;
-    AstInterpreter interpreter(errorHandler, std::make_unique<Environment>());
+    AstInterpreter interpreter(errorHandler);
     std::string input;
 
     while (true) {
@@ -42,7 +42,7 @@ void runFile(std::string filePath) {
     buf << file.rdbuf();
 
     Utils::ErrorHandler errorHandler;
-    AstInterpreter interpreter(errorHandler, std::make_unique<Environment>());
+    AstInterpreter interpreter(errorHandler);
 
     Lexer lexer = Lexer(buf.str(), errorHandler);
     std::vector<Token> tokens = lexer.scanTokens();

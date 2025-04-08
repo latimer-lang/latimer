@@ -7,6 +7,7 @@
 - [x] read user input one line at a time (currently reading by spaces)
 - [x] support taking in files
 - [ ] wtf is going on w/ `1 < 3 : 4 ? 2`
+- [ ] Modularize runtime values and token values separately 
 
 ### Lexical Analysis
 - [x] build error handler
@@ -16,8 +17,10 @@
 - [x] add support for ternary expressions (?, :)
 - [x] might have to specify integer literal value to be `int32_t`
 - [ ] add support for walrus operators (assignment expressions)
-- [ ] remove PRINT Token after completionß
+- [x] remove PRINT Token after completion; on website as well
 - [x] add support for `break;` and `continue;`
+- [ ] ignore /* */
+- [x] add support for `double` types and remove `float` types. likewise, `int32_t` -> `int64_t`
 
 ### Parsing
 - [x] create document for defining grammar for expressions
@@ -29,6 +32,7 @@
 ### Semantic Analysis
 - [ ] BIG type system incoming...
 - [ ] semantic error for `break` or `continue` not being in the loop
+- [ ] error for shadowing native function names
 
 ### Code Generation
 

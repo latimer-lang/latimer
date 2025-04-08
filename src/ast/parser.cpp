@@ -149,7 +149,34 @@ AstExprPtr Parser::unary() {
         return std::make_unique<AstExprUnary>(op.line_, op, std::move(expr));
     }
 
-    return primary();
+    return call();
+}
+
+AstExprPtr Parser::call() {
+    AstExprPtr expr = primary();
+
+    while (true) {
+        if (match({TokenType::LEFT_PAREN})) {
+            int line = previous().line_;
+
+            std::vector<AstExprPtr> args;
+            if (!check(TokenType::RIGHT_PAREN)) {
+                do {
+                    if (args.size() >= 255) {
+                        errorHandler_.error(peek(), "Function call can't have more than 254 arguments.");
+                    }
+                    args.push_back(expression());
+                } while (match({TokenType::COMMA}));
+            }
+            consume(TokenType::RIGHT_PAREN, "Expected ')' to close function call arguments.");
+
+            expr = std::make_unique<AstExprCall>(line, std::move(expr), std::move(args));
+        } else {
+            break;
+        }
+    }
+    
+    return expr;
 }
 
 AstExprPtr Parser::primary() {
@@ -164,12 +191,12 @@ AstExprPtr Parser::primary() {
         return std::make_unique<AstExprLiteralString>(previous().line_, value);
     }
     if (match({TokenType::INTEGER_LIT})) {
-        int32_t value = std::get<int32_t>(previous().literal_);
+        int64_t value = std::get<int64_t>(previous().literal_);
         return std::make_unique<AstExprLiteralInt>(previous().line_, value);
     }
-    if (match({TokenType::FLOAT_LIT})) {
-        float value = std::get<float>(previous().literal_);
-        return std::make_unique<AstExprLiteralFloat>(previous().line_, value);
+    if (match({TokenType::DOUBLE_LIT})) {
+        double value = std::get<double>(previous().literal_);
+        return std::make_unique<AstExprLiteralDouble>(previous().line_, value);
     }
     if (match({TokenType::TRUE_LIT}))
         return std::make_unique<AstExprLiteralBool>(previous().line_, true);
@@ -192,7 +219,7 @@ AstExprPtr Parser::primary() {
 
 AstStatPtr Parser::declaration() {
     try {
-        if (match({TokenType::BOOL_TY, TokenType::INT_TY, TokenType::FLOAT_TY, TokenType::CHAR_TY, TokenType::STRING_TY}))
+        if (match({TokenType::BOOL_TY, TokenType::INT_TY, TokenType::DOUBLE_TY, TokenType::CHAR_TY, TokenType::STRING_TY}))
             return varDeclStat();
         
         return statement();
@@ -203,8 +230,6 @@ AstStatPtr Parser::declaration() {
 }
 
 AstStatPtr Parser::statement() {
-    if (match({TokenType::PRINT}))
-        return printStat();
     if (match({TokenType::IF}))
         return ifElseStat();
     if (match({TokenType::WHILE}))
@@ -278,7 +303,7 @@ AstStatPtr Parser::forStat() {
     AstStatPtr initializer;
     if (match({TokenType::SEMICOLON}))
         initializer = nullptr;
-    else if (match({TokenType::BOOL_TY, TokenType::INT_TY, TokenType::FLOAT_TY, TokenType::CHAR_TY, TokenType::STRING_TY}))
+    else if (match({TokenType::BOOL_TY, TokenType::INT_TY, TokenType::DOUBLE_TY, TokenType::CHAR_TY, TokenType::STRING_TY}))
         initializer = varDeclStat();
     else
         initializer = exprStat();
@@ -314,12 +339,6 @@ AstStatPtr Parser::continueStat() {
     return std::make_unique<AstStatBreak>(continueToken.line_);
 }
 
-AstStatPtr Parser::printStat() {
-    AstExprPtr expr = expression();
-    consume(TokenType::SEMICOLON, "Expect ';' after print statement.");
-    return std::make_unique<AstStatPrint>(expr->line_, std::move(expr));
-}
-
 AstStatPtr Parser::blockStat() {
     Token leftBrace = previous();
     std::vector<AstStatPtr> body;
@@ -352,6 +371,10 @@ Token Parser::advance() {
     return previous();
 }
 
+bool Parser::isAtFront() {
+    return current_ == 0;
+}
+
 bool Parser::isAtEnd() {
     return peek().type_ == TokenType::END_OF_FILE;
 }
@@ -367,7 +390,10 @@ Token Parser::previous() {
 Token Parser::consume(TokenType type, std::string msg) {
     if (check(type)) return advance();
 
-    throw error(peek(), msg);
+    Token errToken = peek();
+    if (!isAtFront())
+        errToken = previous();
+    throw error(errToken, msg);
 }
 
 Token Parser::consume(std::initializer_list<TokenType> types, std::string msg) {
@@ -375,7 +401,10 @@ Token Parser::consume(std::initializer_list<TokenType> types, std::string msg) {
         if (check(type)) return advance();
     }
 
-    throw error(peek(), msg);
+    Token errToken = peek();
+    if (!isAtFront())
+        errToken = previous();
+    throw error(errToken, msg);
 }
 
 ParseError Parser::error(const Token& token, const std::string& msg) {
@@ -393,14 +422,13 @@ void Parser::synchronize() {
             case TokenType::CLASS:
             case TokenType::BOOL_TY:
             case TokenType::INT_TY:
-            case TokenType::FLOAT_TY:
+            case TokenType::DOUBLE_TY:
             case TokenType::CHAR_TY:
             case TokenType::STRING_TY:
             case TokenType::VOID_TY:
             case TokenType::FOR:
             case TokenType::IF:
             case TokenType::WHILE:
-            case TokenType::PRINT:
             case TokenType::RETURN:
                 return;
             default:

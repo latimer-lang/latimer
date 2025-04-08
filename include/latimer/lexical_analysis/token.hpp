@@ -4,7 +4,7 @@
 #include <string>
 
 #include <latimer/utils/macros.hpp>
-#include <latimer/vm/value.hpp>
+#include <latimer/interpreter/value.hpp> // TODO: Kind of weird that value.hpp refers to interpreter. it may be better to create two versions of Value (one for static time and the other for runtime) and in the parser, we could translate
 
 enum class TokenType : uint8_t {
     // Single-character tokens
@@ -48,7 +48,7 @@ enum class TokenType : uint8_t {
     CHARACTER_LIT = 32,
     STRING_LIT = 33,
     INTEGER_LIT = 34,
-    FLOAT_LIT = 35,
+    DOUBLE_LIT = 35,
     TRUE_LIT = 36,
     FALSE_LIT = 37,
 
@@ -58,21 +58,20 @@ enum class TokenType : uint8_t {
     FOR = 40,
     IF = 41,
     NIL = 42, // "null" in Latimer, but NULL is reserved in C++
-    PRINT = 43,
-    RETURN = 44,
-    SUPER = 45,
-    THIS = 46,
-    WHILE = 47,
-    BREAK = 48,
-    CONTINUE = 49,
+    RETURN = 43,
+    SUPER = 44,
+    THIS = 45,
+    WHILE = 46,
+    BREAK = 47,
+    CONTINUE = 48,
 
     // Types
-    BOOL_TY = 50,
-    INT_TY = 51,
-    FLOAT_TY = 52,
-    CHAR_TY = 53,
-    STRING_TY = 54,
-    VOID_TY = 55, // for function return types
+    BOOL_TY = 49,
+    INT_TY = 50,
+    DOUBLE_TY = 51,
+    CHAR_TY = 52,
+    STRING_TY = 53,
+    VOID_TY = 54, // for function return types
 
     END_OF_FILE,
 };
@@ -126,7 +125,7 @@ struct Token {
             case TokenType::CHARACTER_LIT: return "CHARACTER_LIT";
             case TokenType::STRING_LIT: return "STRING_LIT";
             case TokenType::INTEGER_LIT: return "INTEGER_LIT";
-            case TokenType::FLOAT_LIT: return "FLOAT_LIT";
+            case TokenType::DOUBLE_LIT: return "DOUBLE_LIT";
             case TokenType::TRUE_LIT: return "TRUE_LIT";
             case TokenType::FALSE_LIT: return "FALSE_LIT";
             case TokenType::CLASS: return "CLASS";
@@ -134,7 +133,6 @@ struct Token {
             case TokenType::FOR: return "FOR";
             case TokenType::IF: return "IF";
             case TokenType::NIL: return "NIL";
-            case TokenType::PRINT: return "PRINT";
             case TokenType::RETURN: return "RETURN";
             case TokenType::SUPER: return "SUPER";
             case TokenType::THIS: return "THIS";
@@ -143,7 +141,7 @@ struct Token {
             case TokenType::CONTINUE: return "CONTINUE";
             case TokenType::BOOL_TY: return "BOOL_TY";
             case TokenType::INT_TY: return "INT_TY";
-            case TokenType::FLOAT_TY: return "FLOAT_TY";
+            case TokenType::DOUBLE_TY: return "DOUBLE_TY";
             case TokenType::CHAR_TY: return "CHAR_TY";
             case TokenType::STRING_TY: return "STRING_TY";
             case TokenType::VOID_TY: return "VOID_TY";
@@ -153,21 +151,6 @@ struct Token {
 
         UNREACHABLE_CODE
         return "";
-    }
-
-    std::string stringifyLiteral() {
-        if (std::holds_alternative<int32_t>(literal_))
-            return std::to_string(std::get<int32_t>(literal_));
-        else if (std::holds_alternative<float>(literal_))
-            return std::to_string(std::get<float>(literal_));
-        else if (std::holds_alternative<std::string>(literal_))
-            return std::get<std::string>(literal_);
-        else if (std::holds_alternative<std::string>(literal_))
-            return std::to_string(std::get<bool>(literal_));
-        else if (std::holds_alternative<char>(literal_))
-            return escapeChar(std::get<char>(literal_));
-        else
-            return "null";
     }
 
     std::string escapeChar(char c) {

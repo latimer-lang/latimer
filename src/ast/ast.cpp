@@ -28,8 +28,8 @@ void AstExprLiteralInt::accept(AstVisitor& visitor) {
     visitor.visitLiteralIntExpr(*this);
 }
 
-void AstExprLiteralFloat::accept(AstVisitor& visitor) {
-    visitor.visitLiteralFloatExpr(*this);
+void AstExprLiteralDouble::accept(AstVisitor& visitor) {
+    visitor.visitLiteralDoubleExpr(*this);
 }
 
 void AstExprLiteralString::accept(AstVisitor& visitor) {
@@ -46,6 +46,10 @@ void AstExprVariable::accept(AstVisitor& visitor) {
 
 void AstExprAssignment::accept(AstVisitor& visitor) {
     visitor.visitAssignmentExpr(*this);
+}
+
+void AstExprCall::accept(AstVisitor& visitor) {
+    visitor.visitCallExpr(*this);
 }
 
 void AstStatVarDecl::accept(AstVisitor& visitor) {
@@ -74,10 +78,6 @@ void AstStatBreak::accept(AstVisitor &visitor) {
 
 void AstStatContinue::accept(AstVisitor &visitor) {
     visitor.visitContinueStat(*this);
-}
-
-void AstStatPrint::accept(AstVisitor& visitor) {
-    visitor.visitPrintStat(*this);
 }
 
 void AstStatBlock::accept(AstVisitor& visitor) {

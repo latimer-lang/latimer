@@ -105,20 +105,20 @@ public:
 
 class AstExprLiteralInt : public AstExpr {
 public:
-    int32_t value_;
+    int64_t value_;
 
-    explicit AstExprLiteralInt(int line, int32_t value)
+    explicit AstExprLiteralInt(int line, int64_t value)
         : AstExpr(line)
         , value_(value) {}
 
     void accept(AstVisitor& visitor) override;
 };
 
-class AstExprLiteralFloat : public AstExpr {
+class AstExprLiteralDouble : public AstExpr {
 public:
-    float value_;
+    double value_;
 
-    explicit AstExprLiteralFloat(int line, float value)
+    explicit AstExprLiteralDouble(int line, double value)
         : AstExpr(line)
         , value_(value) {}
 
@@ -167,6 +167,19 @@ public:
         : AstExpr(line)
         , name_(name)
         , value_(std::move(value)) {}
+
+    void accept(AstVisitor& visitor) override;
+};
+
+class AstExprCall : public AstExpr {
+public:
+    AstExprPtr callee_;
+    std::vector<AstExprPtr> args_;
+
+    explicit AstExprCall(int line, AstExprPtr callee, std::vector<AstExprPtr> args)
+        : AstExpr(line)
+        , callee_(std::move(callee))
+        , args_(std::move(args)) {}
 
     void accept(AstVisitor& visitor) override;
 };
@@ -271,17 +284,6 @@ public:
     void accept(AstVisitor& visitor) override;
 };
 
-class AstStatPrint : public AstStat {
-public:
-    AstExprPtr expr_;
-
-    explicit AstStatPrint(int line, AstExprPtr expr)
-        : AstStat(line)
-        , expr_(std::move(expr)) {}
-
-    void accept(AstVisitor& visitor) override;
-};
-
 class AstStatBlock : public AstStat {
 public:
     std::vector<AstStatPtr> body_;
@@ -304,11 +306,12 @@ public:
     virtual void visitLiteralNullExpr(AstExprLiteralNull& expr) = 0;
     virtual void visitLiteralBoolExpr(AstExprLiteralBool& expr) = 0;
     virtual void visitLiteralIntExpr(AstExprLiteralInt& expr) = 0;
-    virtual void visitLiteralFloatExpr(AstExprLiteralFloat& expr) = 0;
+    virtual void visitLiteralDoubleExpr(AstExprLiteralDouble& expr) = 0;
     virtual void visitLiteralStringExpr(AstExprLiteralString& expr) = 0;
     virtual void visitLiteralCharExpr(AstExprLiteralChar& expr) = 0;
     virtual void visitVariableExpr(AstExprVariable& expr) = 0;
     virtual void visitAssignmentExpr(AstExprAssignment& expr) = 0;
+    virtual void visitCallExpr(AstExprCall& expr) = 0;
 
     virtual void visitVarDeclStat(AstStatVarDecl& stat) = 0;
     virtual void visitExpressionStat(AstStatExpression& stat) = 0;
@@ -317,6 +320,5 @@ public:
     virtual void visitWhileStat(AstStatWhile& stat) = 0;
     virtual void visitBreakStat(AstStatBreak& stat) = 0;
     virtual void visitContinueStat(AstStatContinue& stat) = 0;
-    virtual void visitPrintStat(AstStatPrint& stat) = 0;
     virtual void visitBlockStat(AstStatBlock& stat) = 0;
 };

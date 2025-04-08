@@ -1,13 +1,13 @@
 # Latimer Language Reference
 
 ## Datatypes
-Latimer supports 5 datatypes: `bool`, `int`, `float`, `char`, `string`.
+Latimer supports 5 datatypes: `bool`, `int`, `double`, `char`, `string`.
 
 Datatype syntax:
 ```
 type → "bool" 
         | "int"
-        | "float"
+        | "double"
         | "char"
         | "string"
 ```
@@ -16,13 +16,13 @@ Datatype value syntax:
 ```
 value → bool
         | int
-        | float
+        | double
         | char
         | string
 bool → "true" 
         | "false"
 int → NUMBER
-float → NUMBER "." NUMBER
+double → NUMBER "." NUMBER
 char → "'" CHARACTER "'"
 string → """ STRING """
 ```
@@ -31,9 +31,9 @@ Example:
 ```
 bool a = true
 int b = 10
-float c = 2.0
-float c = 2. // this is not a valid syntax
-float c = .2 // neither is this
+double c = 2.0
+double c = 2. // this is not a valid syntax
+double c = .2 // neither is this
 char d = 'a'
 string e = "hello world!"
 ```

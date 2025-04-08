@@ -1,16 +1,18 @@
-#include "latimer/utils/error_handler.hpp"
-#include <latimer/vm/ast_interpreter.hpp>
+#include <latimer/interpreter/ast_interpreter.hpp>
 
 #include <iostream>
 #include <stdexcept>
 
 #include <latimer/utils/macros.hpp>
+#include <latimer/interpreter/value.hpp>
+#include <latimer/utils/error_handler.hpp>
+#include <latimer/interpreter/native_functions.hpp>
 
 Environment::Environment()
     : values_()
     , enclosing_() {}
 
-Environment::Environment(Environment* enclosing)
+Environment::Environment(EnvironmentPtr enclosing)
     : values_()
     , enclosing_(enclosing) {}
 
@@ -57,9 +59,16 @@ Runtime::Value Environment::get(Token name) {
     throw RuntimeError(name.line_, "Variable '" + name.lexeme_ + "' has not been declared or initialized.");
 }
 
-AstInterpreter::AstInterpreter(Utils::ErrorHandler& errorHandler, EnvironmentPtr env)
-    : errorHandler_(errorHandler)
-    , env_(std::move(env)) {}
+AstInterpreter::AstInterpreter(Utils::ErrorHandler& errorHandler)
+    : errorHandler_(errorHandler) {
+        globals_ = std::make_shared<Environment>();
+        env_ = globals_;
+
+        // Native functions
+        globals_->define("print", std::make_shared<NativePrint>());
+        globals_->define("clock", std::make_shared<NativeClock>());
+        globals_->define("sleep", std::make_shared<NativeSleep>());
+    }
 
 void AstInterpreter::interpret(const std::vector<AstStatPtr>& statements) {
     try {
@@ -102,16 +111,16 @@ void AstInterpreter::visitUnaryExpr(AstExprUnary& expr) {
                 throw RuntimeError(expr.op_.line_, "Logical NOT expects boolean.");
             break;
         case TokenType::TILDE:
-            if (std::holds_alternative<int32_t>(right))
-                result_ = ~std::get<int32_t>(right);
+            if (std::holds_alternative<int64_t>(right))
+                result_ = ~std::get<int64_t>(right);
             else
                 throw RuntimeError(expr.op_.line_, "Bitwise NOT (~) expects integer.");
             break;
         case TokenType::MINUS:
-            if (std::holds_alternative<int32_t>(right))
-                result_ = -std::get<int32_t>(right);
-            else if (std::holds_alternative<float>(right))
-                result_ = -std::get<float>(right);
+            if (std::holds_alternative<int64_t>(right))
+                result_ = -std::get<int64_t>(right);
+            else if (std::holds_alternative<double>(right))
+                result_ = -std::get<double>(right);
             else
                 throw RuntimeError(expr.op_.line_, "Unary minus expects number.");
         default:
@@ -126,62 +135,62 @@ void AstInterpreter::visitBinaryExpr(AstExprBinary& expr) {
 
     switch (expr.op_.type_) {
         case TokenType::SLASH: // TODO: Division by Zero error
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) / std::get<int32_t>(right);
-            else if (std::holds_alternative<float>(left) && std::holds_alternative<float>(right))
-                result_ = std::get<float>(left) / std::get<float>(right);
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) / std::get<int64_t>(right);
+            else if (std::holds_alternative<double>(left) && std::holds_alternative<double>(right))
+                result_ = std::get<double>(left) / std::get<double>(right);
             else
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " / " + "'" + Runtime::toString(right) + "'.");
             break;
         case TokenType::STAR:
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) * std::get<int32_t>(right);
-            else if (std::holds_alternative<float>(left) && std::holds_alternative<float>(right))
-                result_ = std::get<float>(left) * std::get<float>(right);
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) * std::get<int64_t>(right);
+            else if (std::holds_alternative<double>(left) && std::holds_alternative<double>(right))
+                result_ = std::get<double>(left) * std::get<double>(right);
             else
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " * " + "'" + Runtime::toString(right) + "'.");
             break;
         case TokenType::PERECENT:
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) % std::get<int32_t>(right);
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) % std::get<int64_t>(right);
             else
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " % " + "'" + Runtime::toString(right) + "'.");
             break;
         case TokenType::MINUS:
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) - std::get<int32_t>(right);
-            else if (std::holds_alternative<float>(left) && std::holds_alternative<float>(right))
-                result_ = std::get<float>(left) - std::get<float>(right);
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) - std::get<int64_t>(right);
+            else if (std::holds_alternative<double>(left) && std::holds_alternative<double>(right))
+                result_ = std::get<double>(left) - std::get<double>(right);
             else
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " - " + "'" + Runtime::toString(right) + "'.");
             break;
         case TokenType::PLUS:
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) + std::get<int32_t>(right);
-            else if (std::holds_alternative<float>(left) && std::holds_alternative<float>(right))
-                result_ = std::get<float>(left) + std::get<float>(right);
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) + std::get<int64_t>(right);
+            else if (std::holds_alternative<double>(left) && std::holds_alternative<double>(right))
+                result_ = std::get<double>(left) + std::get<double>(right);
             else if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right))
                 result_ = std::get<std::string>(left) + std::get<std::string>(right);
             else
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " + " + "'" + Runtime::toString(right) + "'.");
             break;
         case TokenType::GREATER_GREATER:
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) >> std::get<int32_t>(right);
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) >> std::get<int64_t>(right);
             else
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " >> " + "'" + Runtime::toString(right) + "'.");
             break;
         case TokenType::LESS_LESS:
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) << std::get<int32_t>(right);
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) << std::get<int64_t>(right);
             else
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " << " + "'" + Runtime::toString(right) + "'.");
             break;
-        case TokenType::GREATER: // TODO: Allow comparison between int and float?
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) > std::get<int32_t>(right);
-            else if (std::holds_alternative<float>(left) && std::holds_alternative<float>(right))
-                result_ = std::get<float>(left) > std::get<float>(right);
+        case TokenType::GREATER: // TODO: Allow comparison between int and double?
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) > std::get<int64_t>(right);
+            else if (std::holds_alternative<double>(left) && std::holds_alternative<double>(right))
+                result_ = std::get<double>(left) > std::get<double>(right);
             else if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right))
                 result_ = std::get<std::string>(left) > std::get<std::string>(right);
             else if (std::holds_alternative<char>(left) && std::holds_alternative<char>(right))
@@ -189,11 +198,11 @@ void AstInterpreter::visitBinaryExpr(AstExprBinary& expr) {
             else
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " > " + "'" + Runtime::toString(right) + "'.");
             break;
-        case TokenType::GREATER_EQUAL: // TODO: Allow comparison between int and float?
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) >= std::get<int32_t>(right);
-            else if (std::holds_alternative<float>(left) && std::holds_alternative<float>(right))
-                result_ = std::get<float>(left) >= std::get<float>(right);
+        case TokenType::GREATER_EQUAL: // TODO: Allow comparison between int and double?
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) >= std::get<int64_t>(right);
+            else if (std::holds_alternative<double>(left) && std::holds_alternative<double>(right))
+                result_ = std::get<double>(left) >= std::get<double>(right);
             else if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right))
                 result_ = std::get<std::string>(left) >= std::get<std::string>(right);
             else if (std::holds_alternative<char>(left) && std::holds_alternative<char>(right))
@@ -201,11 +210,11 @@ void AstInterpreter::visitBinaryExpr(AstExprBinary& expr) {
             else
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " >= " + "'" + Runtime::toString(right) + "'.");
             break;
-        case TokenType::LESS: // TODO: Allow comparison between int and float?
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) < std::get<int32_t>(right);
-            else if (std::holds_alternative<float>(left) && std::holds_alternative<float>(right))
-                result_ = std::get<float>(left) < std::get<float>(right);
+        case TokenType::LESS: // TODO: Allow comparison between int and double?
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) < std::get<int64_t>(right);
+            else if (std::holds_alternative<double>(left) && std::holds_alternative<double>(right))
+                result_ = std::get<double>(left) < std::get<double>(right);
             else if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right))
                 result_ = std::get<std::string>(left) < std::get<std::string>(right);
             else if (std::holds_alternative<char>(left) && std::holds_alternative<char>(right))
@@ -213,11 +222,11 @@ void AstInterpreter::visitBinaryExpr(AstExprBinary& expr) {
             else
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " < " + "'" + Runtime::toString(right) + "'.");
             break;
-        case TokenType::LESS_EQUAL: // TODO: Allow comparison between int and float?
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) <= std::get<int32_t>(right);
-            else if (std::holds_alternative<float>(left) && std::holds_alternative<float>(right))
-                result_ = std::get<float>(left) <= std::get<float>(right);
+        case TokenType::LESS_EQUAL: // TODO: Allow comparison between int and double?
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) <= std::get<int64_t>(right);
+            else if (std::holds_alternative<double>(left) && std::holds_alternative<double>(right))
+                result_ = std::get<double>(left) <= std::get<double>(right);
             else if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right))
                 result_ = std::get<std::string>(left) <= std::get<std::string>(right);
             else if (std::holds_alternative<char>(left) && std::holds_alternative<char>(right))
@@ -226,10 +235,10 @@ void AstInterpreter::visitBinaryExpr(AstExprBinary& expr) {
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " <= " + "'" + Runtime::toString(right) + "'.");
             break;
         case TokenType::EQUAL_EQUAL:
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) == std::get<int32_t>(right);
-            else if (std::holds_alternative<float>(left) && std::holds_alternative<float>(right))
-                result_ = std::get<float>(left) == std::get<float>(right);
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) == std::get<int64_t>(right);
+            else if (std::holds_alternative<double>(left) && std::holds_alternative<double>(right))
+                result_ = std::get<double>(left) == std::get<double>(right);
             else if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right))
                 result_ = std::get<std::string>(left) == std::get<std::string>(right);
             else if (std::holds_alternative<char>(left) && std::holds_alternative<char>(right))
@@ -242,10 +251,10 @@ void AstInterpreter::visitBinaryExpr(AstExprBinary& expr) {
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " == " + "'" + Runtime::toString(right) + "'.");
             break;
         case TokenType::BANG_EQUAL:
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) != std::get<int32_t>(right);
-            else if (std::holds_alternative<float>(left) && std::holds_alternative<float>(right))
-                result_ = std::get<float>(left) != std::get<float>(right);
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) != std::get<int64_t>(right);
+            else if (std::holds_alternative<double>(left) && std::holds_alternative<double>(right))
+                result_ = std::get<double>(left) != std::get<double>(right);
             else if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right))
                 result_ = std::get<std::string>(left) != std::get<std::string>(right);
             else if (std::holds_alternative<char>(left) && std::holds_alternative<char>(right))
@@ -258,20 +267,20 @@ void AstInterpreter::visitBinaryExpr(AstExprBinary& expr) {
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " != " + "'" + Runtime::toString(right) + "'.");
             break;
         case TokenType::PIPE:
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) | std::get<int32_t>(right);
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) | std::get<int64_t>(right);
             else
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " | " + "'" + Runtime::toString(right) + "'.");
             break;
         case TokenType::AMPERSAND:
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) & std::get<int32_t>(right);
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) & std::get<int64_t>(right);
             else
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " & " + "'" + Runtime::toString(right) + "'.");
             break;
         case TokenType::CARET:
-            if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right))
-                result_ = std::get<int32_t>(left) ^ std::get<int32_t>(right);
+            if (std::holds_alternative<int64_t>(left) && std::holds_alternative<int64_t>(right))
+                result_ = std::get<int64_t>(left) ^ std::get<int64_t>(right);
             else
                 throw RuntimeError(expr.op_.line_, "Unsupported operands for '" + Runtime::toString(left) + "'" + " ^ " + "'" + Runtime::toString(right) + "'.");
             break;
@@ -313,7 +322,7 @@ void AstInterpreter::visitLiteralIntExpr(AstExprLiteralInt& expr) {
     result_ = expr.value_;
 }
 
-void AstInterpreter::visitLiteralFloatExpr(AstExprLiteralFloat& expr) {
+void AstInterpreter::visitLiteralDoubleExpr(AstExprLiteralDouble& expr) {
     result_ = expr.value_;
 }
 
@@ -333,6 +342,24 @@ void AstInterpreter::visitAssignmentExpr(AstExprAssignment& expr) {
     Runtime::Value value = evaluate(*expr.value_);
     env_->assign(expr.name_, value);
     result_ = value;
+}
+
+void AstInterpreter::visitCallExpr(AstExprCall& expr) {
+    Runtime::Value callee = evaluate(*expr.callee_);
+
+    std::vector<Runtime::Value> arguments;
+    for (const auto& argExpr : expr.args_)
+        arguments.push_back(evaluate(*argExpr));
+
+    if (!std::holds_alternative<std::shared_ptr<Runtime::Callable>>(callee))
+        throw RuntimeError(expr.line_, "Attempted to call a non-callable value.");
+
+    auto callable = std::get<std::shared_ptr<Runtime::Callable>>(callee);
+    if (callable->arity() != 255 && arguments.size() != callable->arity()) {
+        throw RuntimeError(expr.line_, "Expected " + std::to_string(callable->arity()) + " arguments but got " + std::to_string(arguments.size()) + ".");
+    }
+
+    result_ = callable->call(expr.line_, *this, arguments);
 }
 
 void AstInterpreter::visitVarDeclStat(AstStatVarDecl& stat) {
@@ -404,13 +431,8 @@ void AstInterpreter::visitContinueStat(AstStatContinue& stat) {
     throw ContinueSignal();
 }
 
-void AstInterpreter::visitPrintStat(AstStatPrint& stat) {
-    Runtime::Value output = evaluate(*stat.expr_);
-    std::cout << Runtime::toString(output) << std::endl;
-}
-
 void AstInterpreter::visitBlockStat(AstStatBlock& stat) {
-    executeBlocK(stat.body_, std::make_unique<Environment>(env_.get()));
+    executeBlocK(stat.body_, std::make_shared<Environment>(env_));
 }
 
 bool AstInterpreter::requireBool(const Runtime::Value& value, int line, const std::string& errorMsg) {
@@ -426,7 +448,7 @@ void AstInterpreter::executeBlocK(const std::vector<AstStatPtr>& body, Environme
     // > { int a = 2; some runtime error code }
     // > print a;
     // without the guard, prints 2 (which is incorrect); with guard, prints 1 (correct)
-    EnvironmentGuard guard(env_, std::move(localEnv));
+    EnvironmentGuard guard(env_, localEnv);
 
     for (const AstStatPtr& stat : body) {
         execute(*stat);

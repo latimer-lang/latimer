@@ -30,6 +30,7 @@ private:
     AstExprPtr term();
     AstExprPtr factor();
     AstExprPtr unary();
+    AstExprPtr call();
     AstExprPtr primary();
 
     AstStatPtr declaration();
@@ -41,12 +42,12 @@ private:
     AstStatPtr forStat();
     AstStatPtr breakStat();
     AstStatPtr continueStat();
-    AstStatPtr printStat();
     AstStatPtr blockStat();
 
     bool match(std::initializer_list<TokenType> types);
     bool check(TokenType type);
     Token advance();
+    bool isAtFront();
     bool isAtEnd();
     Token peek();
     Token previous();

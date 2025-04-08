@@ -44,7 +44,7 @@ private:
         result_ = std::to_string(expr.value_);
     }
 
-    void visitLiteralFloatExpr(AstExprLiteralFloat& expr) override {
+    void visitLiteralDoubleExpr(AstExprLiteralDouble& expr) override {
         std::ostringstream ss;
         ss << expr.value_;
         result_ = ss.str();
