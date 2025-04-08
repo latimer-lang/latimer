@@ -278,8 +278,25 @@ void Lexer::scanToken() {
             addToken(match('|') ? TokenType::PIPE_PIPE : TokenType::PIPE);
             break;
         case '/':
-            if (match('/')) // Ignore comments
+            if (match('/')) // Ignore single-line comments
                 while (peek() != '\n' && !isAtEnd()) advance();
+            if (match('*')) {
+                // Ignore multi-line comments
+                while (!isAtEnd()) {
+                    if (peek() == '*' && peekNext() == '/') {
+                        advance(); // consume '*'
+                        advance(); // consume '/'
+                        break;
+                    }
+
+                    if (peek() == '\n') ++line_;
+                    advance();
+                }
+
+                if (isAtEnd()) {
+                    errorHandler_.error(line_, "Unterminated multi-line comment.");
+                }
+            }
             else
                 addToken(TokenType::SLASH);
             break;
