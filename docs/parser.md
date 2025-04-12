@@ -20,7 +20,11 @@ This section consists of Context-Free Grammar used by Latimer's parser for state
 ```
 program        → declaration* END_OF_FILE
 declaration    → varDeclStat
+               | funcDeclStat
                | statement
+funcDeclStat   → ( varType | "void" ) IDENTIFIER "(" funcArgs? ")" block
+funcArgs       → funcArg ( "," funcArg )*
+funcArg        → varType IDENTIFIER
 varDeclStat    → varType IDENTIFIER ( "=" expression )? ";"
 varType        → "bool" | "int" | "double" | "char" | "string"
 statement      → exprStat
@@ -29,7 +33,7 @@ statement      → exprStat
                | forStat
                | breakStat
                | continueStat
-               | printStat
+               | returnStat
                | block
 exprStat       → expression ";"
 ifStat         → "if" "(" expression ")" block ( "else" ifStat | "else" block )?
@@ -37,7 +41,7 @@ whileStat      → "while" "(" expression ")" block
 forStat        → "for" "(" ( varDeclStat | exprStat | ";" ) ";" expression? ";" expression? ";" ")" block
 breakStat      → "break" ";"
 continueStat   → "continue" ";"
-printStat      → "print" expression ";"
+returnStat     → "return" expression? ";"
 block          → "{" declaration* "}"
 ```
 

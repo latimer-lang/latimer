@@ -36,12 +36,15 @@ private:
     AstStatPtr declaration();
     AstStatPtr statement();
     AstStatPtr varDeclStat();
+    AstStatPtr varDeclStat(Token type, Token name);
+    AstStatPtr funcDeclStat(Token type, Token name);
     AstStatPtr exprStat();
     AstStatPtr ifElseStat();
     AstStatPtr whileStat();
     AstStatPtr forStat();
     AstStatPtr breakStat();
     AstStatPtr continueStat();
+    AstStatPtr returnStat();
     AstStatPtr blockStat();
 
     bool match(std::initializer_list<TokenType> types);

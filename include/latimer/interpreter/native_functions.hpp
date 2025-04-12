@@ -1,11 +1,11 @@
 #pragma once
 
 #include <chrono>
+#include <memory>
 #include <thread>
 
 #include <latimer/interpreter/value.hpp>
 #include <latimer/utils/error_handler.hpp>
-
 #include <latimer/utils/macros.hpp>
 
 class NativePrint : public Runtime::Callable {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <exception>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
@@ -80,9 +81,29 @@ private:
     void visitBreakStat(AstStatBreak& stat) override;
     void visitContinueStat(AstStatContinue& stat) override;
     void visitBlockStat(AstStatBlock& stat) override;
+    void visitFuncDeclStat(AstStatFuncDecl& stat) override;
+    void visitReturnStat(AstStatReturn& stat) override;
 
-    class BreakSignal : public std::exception {};
-    class ContinueSignal : public std::exception {};
+    struct BreakSignal : public std::exception {};
+    struct ContinueSignal : public std::exception {};
+    struct ReturnSignal : public std::exception {
+        Runtime::Value value_;
+
+        explicit ReturnSignal(Runtime::Value value)
+            : std::exception()
+            , value_(value) {}
+    };
     bool requireBool(const Runtime::Value& value, int line, const std::string& errorMsg);
     void executeBlocK(const std::vector<AstStatPtr>& body, EnvironmentPtr localEnv);
+
+    struct UserFunction : public Runtime::Callable {
+        AstStatFuncDecl* decl_;
+        EnvironmentPtr closure_;
+
+        explicit UserFunction(AstStatFuncDecl* decl, EnvironmentPtr closer);
+
+        size_t arity() const override;
+        Runtime::Value call(int line, AstInterpreter& interpreter, const std::vector<Runtime::Value>& arguments) override;
+        std::string toString() const override;
+    };
 };

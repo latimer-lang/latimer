@@ -295,6 +295,36 @@ public:
     void accept(AstVisitor& visitor) override;
 };
 
+class AstStatFuncDecl : public AstStat {
+public:
+    Token returnType_;
+    Token name_;
+    std::vector<Token> paramTypes_;
+    std::vector<Token> paramNames_;
+    AstStatPtr body_;
+
+    explicit AstStatFuncDecl(int line, Token returnType, Token name, std::vector<Token> paramTypes, std::vector<Token> paramNames, AstStatPtr body)
+        : AstStat(line)
+        , returnType_(returnType)
+        , name_(name)
+        , paramTypes_(paramTypes)
+        , paramNames_(paramNames)
+        , body_(std::move(body)) {}
+
+    void accept(AstVisitor& visitor) override;
+};
+
+class AstStatReturn : public AstStat {
+public:
+    AstExprPtr value_;
+
+    explicit AstStatReturn(int line, AstExprPtr value)
+        : AstStat(line)
+        , value_(std::move(value)) {}
+
+    void accept(AstVisitor& visitor) override;
+};
+
 class AstVisitor {
 public:
     ~AstVisitor() = default;
@@ -321,4 +351,6 @@ public:
     virtual void visitBreakStat(AstStatBreak& stat) = 0;
     virtual void visitContinueStat(AstStatContinue& stat) = 0;
     virtual void visitBlockStat(AstStatBlock& stat) = 0;
+    virtual void visitFuncDeclStat(AstStatFuncDecl& stat) = 0;
+    virtual void visitReturnStat(AstStatReturn& stat) = 0;
 };

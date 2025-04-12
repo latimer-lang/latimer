@@ -83,3 +83,11 @@ void AstStatContinue::accept(AstVisitor &visitor) {
 void AstStatBlock::accept(AstVisitor& visitor) {
     visitor.visitBlockStat(*this);
 }
+
+void AstStatFuncDecl::accept(AstVisitor& visitor) {
+    visitor.visitFuncDeclStat(*this);
+}
+
+void AstStatReturn::accept(AstVisitor& visitor) {
+    visitor.visitReturnStat(*this);
+}

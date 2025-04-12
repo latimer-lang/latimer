@@ -435,6 +435,14 @@ void AstInterpreter::visitBlockStat(AstStatBlock& stat) {
     executeBlocK(stat.body_, std::make_shared<Environment>(env_));
 }
 
+void AstInterpreter::visitFuncDeclStat(AstStatFuncDecl& stat) {
+    env_->define(stat.name_.lexeme_, std::make_shared<AstInterpreter::UserFunction>(&stat, env_));
+}
+
+void AstInterpreter::visitReturnStat(AstStatReturn& stat) {
+    throw ReturnSignal(evaluate(*stat.value_));
+}
+
 bool AstInterpreter::requireBool(const Runtime::Value& value, int line, const std::string& errorMsg) {
     if (!std::holds_alternative<bool>(value))
         throw RuntimeError(line, errorMsg);
@@ -453,4 +461,38 @@ void AstInterpreter::executeBlocK(const std::vector<AstStatPtr>& body, Environme
     for (const AstStatPtr& stat : body) {
         execute(*stat);
     }
+}
+
+AstInterpreter::UserFunction::UserFunction(AstStatFuncDecl* decl, EnvironmentPtr closure)
+    : decl_(decl)
+    , closure_(closure) {}
+
+size_t AstInterpreter::UserFunction::arity() const {
+    return decl_->paramNames_.size();
+}
+
+Runtime::Value AstInterpreter::UserFunction::call(int line, AstInterpreter& interpreter, const std::vector<Runtime::Value>& arguments) {
+    if (decl_->paramNames_.size() != arguments.size())
+        throw RuntimeError(line, "Function '" + decl_->name_.lexeme_ + "' expected " + std::to_string(decl_->paramNames_.size()) + " argument(s), but got " + std::to_string(arguments.size()) + ".");
+
+    EnvironmentPtr env = std::make_shared<Environment>(closure_);
+    for (size_t i = 0; i < decl_->paramNames_.size(); i++) {
+        env->define(decl_->paramNames_.at(i).lexeme_, arguments.at(i));
+    }
+
+    AstStatBlock* bodyBlock = dynamic_cast<AstStatBlock*>(decl_->body_.get());
+    if (!bodyBlock)
+        throw RuntimeError(line, "[Internal Compiler Error]: Function body is not a block statement.");
+
+    try {
+        interpreter.executeBlocK(bodyBlock->body_, env);
+    } catch (ReturnSignal returnSig) {
+        return returnSig.value_;
+    }
+
+    return std::monostate();
+}
+
+std::string AstInterpreter::UserFunction::toString() const {
+    return "<fn " + decl_->name_.lexeme_ + ">";
 }

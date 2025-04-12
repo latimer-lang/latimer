@@ -7,7 +7,8 @@
 - [x] read user input one line at a time (currently reading by spaces)
 - [x] support taking in files
 - [ ] wtf is going on w/ `1 < 3 : 4 ? 2`
-- [ ] Modularize runtime values and token values separately 
+- [ ] Modularize runtime values and token values separately, maybe put the values in the context of parser
+- [ ] Allow forward declaration of functions and structs
 
 ### Lexical Analysis
 - [x] build error handler
@@ -19,8 +20,10 @@
 - [ ] add support for walrus operators (assignment expressions)
 - [x] remove PRINT Token after completion; on website as well
 - [x] add support for `break;` and `continue;`
-- [ ] ignore /* */
+- [x] ignore /* */
 - [x] add support for `double` types and remove `float` types. likewise, `int32_t` -> `int64_t`
+- [ ] add support for lambda functions
+- [ ] add function type annotations: `returnTy(argTy1, argTy2)`
 
 ### Parsing
 - [x] create document for defining grammar for expressions
@@ -33,6 +36,7 @@
 - [ ] BIG type system incoming...
 - [ ] semantic error for `break` or `continue` not being in the loop
 - [ ] error for shadowing native function names
+- [ ] return statement cannot exist not inside functions
 
 ### Code Generation
 

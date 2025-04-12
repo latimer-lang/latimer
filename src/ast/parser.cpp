@@ -219,8 +219,17 @@ AstExprPtr Parser::primary() {
 
 AstStatPtr Parser::declaration() {
     try {
-        if (match({TokenType::BOOL_TY, TokenType::INT_TY, TokenType::DOUBLE_TY, TokenType::CHAR_TY, TokenType::STRING_TY}))
-            return varDeclStat();
+        if (match({TokenType::BOOL_TY, TokenType::INT_TY, TokenType::DOUBLE_TY, TokenType::CHAR_TY, TokenType::STRING_TY, TokenType::VOID_TY})) {
+            Token declType = previous();
+            Token declName = consume(TokenType::IDENTIFIER, "Expect variable name after declaration type.");
+            
+            // Parsing variable declarations
+            if (check(TokenType::EQUAL))
+                return varDeclStat(declType, declName);
+            
+            // Parsing function declarations
+            return funcDeclStat(declType, declName);
+        }
         
         return statement();
     } catch (ParseError error) {
@@ -240,6 +249,8 @@ AstStatPtr Parser::statement() {
         return breakStat();
     if (match({TokenType::CONTINUE}))
         return continueStat();
+    if (match({TokenType::RETURN}))
+        return returnStat();
     if (match({TokenType::LEFT_BRACE}))
         return blockStat();
 
@@ -247,15 +258,45 @@ AstStatPtr Parser::statement() {
 }
 
 AstStatPtr Parser::varDeclStat() {
-    Token type = previous();
-    Token name = consume(TokenType::IDENTIFIER, "Expect variable name.");
+    Token declType = previous();
+    Token declName = consume(TokenType::IDENTIFIER, "Expect variable name after declaration type.");
 
+    return varDeclStat(declType, declName);
+}
+
+AstStatPtr Parser::varDeclStat(Token type, Token name) {
     AstExprPtr initializer = nullptr;
     if (match({TokenType::EQUAL}))
         initializer = expression();
 
     consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
     return std::make_unique<AstStatVarDecl>(type.line_, type, name, std::move(initializer));
+}
+
+AstStatPtr Parser::funcDeclStat(Token type, Token name) {
+    consume(TokenType::LEFT_PAREN, "Expect '(' after function name.");
+
+    std::vector<Token> paramTypes;
+    std::vector<Token> paramNames;
+
+    if (!check(TokenType::RIGHT_PAREN)) {
+        do {
+            if (paramTypes.size() >= 255 || paramNames.size() >= 255) {
+                error(peek(), "Can't have more than 255 parameters.");
+            }
+
+            Token paramType = consume({TokenType::BOOL_TY, TokenType::INT_TY, TokenType::DOUBLE_TY, TokenType::CHAR_TY, TokenType::STRING_TY}, "Expect parameter type for argument " + std::to_string(paramTypes.size()));
+            paramTypes.push_back(paramType);
+            Token paramName = consume(TokenType::IDENTIFIER, "Expect parameter name for argument " + std::to_string(paramNames.size()));
+            paramNames.push_back(paramName);
+        } while (match({TokenType::COMMA}));
+    }
+
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after function parameters.");
+    consume(TokenType::LEFT_BRACE, "Expect '{' before function body.");
+    AstStatPtr body = blockStat();
+
+    return std::make_unique<AstStatFuncDecl>(type.line_, type, name, std::move(paramTypes), std::move(paramNames), std::move(body));
 }
 
 AstStatPtr Parser::exprStat() {
@@ -337,6 +378,18 @@ AstStatPtr Parser::continueStat() {
     consume(TokenType::SEMICOLON, "Expect ';' after continue statement.");
 
     return std::make_unique<AstStatBreak>(continueToken.line_);
+}
+
+AstStatPtr Parser::returnStat() {
+    Token returnToken = previous();
+
+    AstExprPtr value = nullptr;
+    if (!check(TokenType::SEMICOLON))
+        value = expression();
+
+    consume(TokenType::SEMICOLON, "Expect ';' after return statement.");
+
+    return std::make_unique<AstStatReturn>(returnToken.line_, std::move(value));
 }
 
 AstStatPtr Parser::blockStat() {
