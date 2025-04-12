@@ -223,12 +223,12 @@ AstStatPtr Parser::declaration() {
             Token declType = previous();
             Token declName = consume(TokenType::IDENTIFIER, "Expect variable name after declaration type.");
             
-            // Parsing variable declarations
-            if (check(TokenType::EQUAL))
-                return varDeclStat(declType, declName);
-            
             // Parsing function declarations
-            return funcDeclStat(declType, declName);
+            if (check(TokenType::LEFT_PAREN))
+                return funcDeclStat(declType, declName);
+            
+            // Parsing variable declarations
+            return varDeclStat(declType, declName);
         }
         
         return statement();
