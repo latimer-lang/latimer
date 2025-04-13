@@ -299,14 +299,16 @@ class AstStatFuncDecl : public AstStat {
 public:
     Token returnType_;
     Token name_;
+    std::vector<Token> captures_;
     std::vector<Token> paramTypes_;
     std::vector<Token> paramNames_;
     AstStatPtr body_;
 
-    explicit AstStatFuncDecl(int line, Token returnType, Token name, std::vector<Token> paramTypes, std::vector<Token> paramNames, AstStatPtr body)
+    explicit AstStatFuncDecl(int line, Token returnType, Token name, std::vector<Token> captures, std::vector<Token> paramTypes, std::vector<Token> paramNames, AstStatPtr body)
         : AstStat(line)
         , returnType_(returnType)
         , name_(name)
+        , captures_(captures)
         , paramTypes_(paramTypes)
         , paramNames_(paramNames)
         , body_(std::move(body)) {}

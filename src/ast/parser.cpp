@@ -224,7 +224,7 @@ AstStatPtr Parser::declaration() {
             Token declName = consume(TokenType::IDENTIFIER, "Expect variable name after declaration type.");
             
             // Parsing function declarations
-            if (check(TokenType::LEFT_PAREN))
+            if (check(TokenType::LEFT_BRACKET))
                 return funcDeclStat(declType, declName);
             
             // Parsing variable declarations
@@ -274,8 +274,17 @@ AstStatPtr Parser::varDeclStat(Token type, Token name) {
 }
 
 AstStatPtr Parser::funcDeclStat(Token type, Token name) {
-    consume(TokenType::LEFT_PAREN, "Expect '(' after function name.");
+    consume(TokenType::LEFT_BRACKET, "Expect '[' after function name to begin capture list.");
+    std::vector<Token> captures;
+    if (!check(TokenType::RIGHT_BRACKET)) {
+        do {
+            Token capture = consume(TokenType::IDENTIFIER, "Expect an identifier for capture #" + std::to_string(captures.size()) + ".");
+            captures.push_back(capture);
+        } while (match({TokenType::COMMA}));
+    }
+    consume(TokenType::RIGHT_BRACKET, "Expect ']' after the capture list.");
 
+    consume(TokenType::LEFT_PAREN, "Expect '(' to begin parameter list.");
     std::vector<Token> paramTypes;
     std::vector<Token> paramNames;
 
@@ -291,12 +300,12 @@ AstStatPtr Parser::funcDeclStat(Token type, Token name) {
             paramNames.push_back(paramName);
         } while (match({TokenType::COMMA}));
     }
-
-    consume(TokenType::RIGHT_PAREN, "Expect ')' after function parameters.");
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after the parameter list.");
+    
     consume(TokenType::LEFT_BRACE, "Expect '{' before function body.");
     AstStatPtr body = blockStat();
 
-    return std::make_unique<AstStatFuncDecl>(type.line_, type, name, std::move(paramTypes), std::move(paramNames), std::move(body));
+    return std::make_unique<AstStatFuncDecl>(type.line_, type, name, std::move(captures), std::move(paramTypes), std::move(paramNames), std::move(body));
 }
 
 AstStatPtr Parser::exprStat() {

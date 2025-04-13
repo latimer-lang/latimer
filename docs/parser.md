@@ -22,7 +22,8 @@ program        → declaration* END_OF_FILE
 declaration    → varDeclStat
                | funcDeclStat
                | statement
-funcDeclStat   → ( varType | "void" ) IDENTIFIER "(" funcArgs? ")" block
+funcDeclStat   → ( varType | "void" ) IDENTIFIER "[" captureList? "]" "(" funcArgs? ")" block
+captureList    → IDENTIFIER ( "," IDENTIFIER )*
 funcArgs       → funcArg ( "," funcArg )*
 funcArg        → varType IDENTIFIER
 varDeclStat    → varType IDENTIFIER ( "=" expression )? ";"

@@ -12,68 +12,70 @@ enum class TokenType : uint8_t {
     RIGHT_PAREN = 2,
     LEFT_BRACE = 3,
     RIGHT_BRACE = 4,
-    COMMA = 5,
-    DOT = 6,
-    MINUS = 7,
-    PLUS = 8,
-    SEMICOLON = 9,
-    COLON = 10,
-    SLASH = 11,
-    STAR = 12,
-    PERECENT = 13,
-    TILDE = 14,
-    CARET = 15,
-    QUESTION_MARK = 16,
+    LEFT_BRACKET = 5,
+    RIGHT_BRACKET = 6,
+    COMMA = 7,
+    DOT = 8,
+    MINUS = 9,
+    PLUS = 10,
+    SEMICOLON = 11,
+    COLON = 12,
+    SLASH = 13,
+    STAR = 14,
+    PERECENT = 15,
+    TILDE = 16,
+    CARET = 17,
+    QUESTION_MARK = 18,
 
     // One/two-character tokens
-    BANG = 17,
-    BANG_EQUAL = 18,
-    EQUAL = 19,
-    EQUAL_EQUAL = 20,
-    GREATER = 21,
-    GREATER_GREATER = 22,
-    GREATER_EQUAL = 23,
-    LESS = 24,
-    LESS_LESS = 25,
-    LESS_EQUAL = 26,
-    AMPERSAND = 27,
-    AMPERSAND_AMPERSAND = 28,
-    PIPE = 29,
-    PIPE_PIPE = 30,
+    BANG = 19,
+    BANG_EQUAL = 20,
+    EQUAL = 21,
+    EQUAL_EQUAL = 22,
+    GREATER = 23,
+    GREATER_GREATER = 24,
+    GREATER_EQUAL = 25,
+    LESS = 26,
+    LESS_LESS = 27,
+    LESS_EQUAL = 28,
+    AMPERSAND = 29,
+    AMPERSAND_AMPERSAND = 30,
+    PIPE = 31,
+    PIPE_PIPE = 32,
 
     // Identifier
-    IDENTIFIER = 31,
+    IDENTIFIER = 33,
 
     // Literals
-    CHARACTER_LIT = 32,
-    STRING_LIT = 33,
-    INTEGER_LIT = 34,
-    DOUBLE_LIT = 35,
-    TRUE_LIT = 36,
-    FALSE_LIT = 37,
+    CHARACTER_LIT = 34,
+    STRING_LIT = 35,
+    INTEGER_LIT = 36,
+    DOUBLE_LIT = 37,
+    TRUE_LIT = 38,
+    FALSE_LIT = 39,
 
     // Keywords
-    CLASS = 38,
-    ELSE = 39,
-    FOR = 40,
-    IF = 41,
-    NIL = 42, // "null" in Latimer, but NULL is reserved in C++
-    RETURN = 43,
-    SUPER = 44,
-    THIS = 45,
-    WHILE = 46,
-    BREAK = 47,
-    CONTINUE = 48,
+    CLASS = 40,
+    ELSE = 41,
+    FOR = 42,
+    IF = 43,
+    NIL = 44, // "null" in Latimer, but NULL is reserved in C++
+    RETURN = 45,
+    SUPER = 46,
+    THIS = 47,
+    WHILE = 48,
+    BREAK = 49,
+    CONTINUE = 50,
 
     // Types
-    BOOL_TY = 49,
-    INT_TY = 50,
-    DOUBLE_TY = 51,
-    CHAR_TY = 52,
-    STRING_TY = 53,
-    VOID_TY = 54, // for function return types
+    BOOL_TY = 51,
+    INT_TY = 52,
+    DOUBLE_TY = 53,
+    CHAR_TY = 54,
+    STRING_TY = 55,
+    VOID_TY = 56, // for function return types
 
-    END_OF_FILE,
+    END_OF_FILE = 57,
 };
 
 struct Token {
@@ -95,6 +97,8 @@ struct Token {
             case TokenType::RIGHT_PAREN: return "RIGHT_PAREN";
             case TokenType::LEFT_BRACE: return "LEFT_BRACE";
             case TokenType::RIGHT_BRACE: return "RIGHT_BRACE";
+            case TokenType::LEFT_BRACKET: return "LEFT_BRACKET";
+            case TokenType::RIGHT_BRACKET: return "RIGHT_BRACKET";
             case TokenType::COMMA: return "COMMA";
             case TokenType::DOT: return "DOT";
             case TokenType::MINUS: return "MINUS";

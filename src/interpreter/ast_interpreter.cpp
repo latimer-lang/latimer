@@ -10,7 +10,13 @@
 
 Environment::Environment()
     : values_()
-    , enclosing_() {}
+    , enclosing_() {
+    
+    // Native functions
+    define("print", std::make_shared<NativePrint>());
+    define("clock", std::make_shared<NativeClock>());
+    define("sleep", std::make_shared<NativeSleep>());
+}
 
 Environment::Environment(EnvironmentPtr enclosing)
     : values_()
@@ -60,15 +66,9 @@ Runtime::Value Environment::get(Token name) {
 }
 
 AstInterpreter::AstInterpreter(Utils::ErrorHandler& errorHandler)
-    : errorHandler_(errorHandler) {
-        globals_ = std::make_shared<Environment>();
-        env_ = globals_;
-
-        // Native functions
-        globals_->define("print", std::make_shared<NativePrint>());
-        globals_->define("clock", std::make_shared<NativeClock>());
-        globals_->define("sleep", std::make_shared<NativeSleep>());
-    }
+    : errorHandler_(errorHandler)
+    , globals_(std::make_shared<Environment>())
+    , env_(globals_) {}
 
 void AstInterpreter::interpret(const std::vector<AstStatPtr>& statements) {
     try {
@@ -364,6 +364,9 @@ void AstInterpreter::visitCallExpr(AstExprCall& expr) {
 
 void AstInterpreter::visitVarDeclStat(AstStatVarDecl& stat) {
     std::string lexeme = stat.name_.lexeme_;
+    if (env_->isDeclared(lexeme))
+        throw RuntimeError(stat.line_, "variable '" + lexeme + "' is already declared in this scope.");
+
     env_->declare(lexeme);
 
     if (stat.initializer_ == nullptr)
@@ -432,11 +435,15 @@ void AstInterpreter::visitContinueStat(AstStatContinue& stat) {
 }
 
 void AstInterpreter::visitBlockStat(AstStatBlock& stat) {
-    executeBlocK(stat.body_, std::make_shared<Environment>(env_));
+    executeBlocK(stat.body_, std::make_shared<Environment>(globals_));
 }
 
 void AstInterpreter::visitFuncDeclStat(AstStatFuncDecl& stat) {
-    env_->define(stat.name_.lexeme_, std::make_shared<AstInterpreter::UserFunction>(&stat, env_));
+    EnvironmentPtr local = std::make_shared<Environment>();
+    for (auto capture : stat.captures_)
+        local->define(capture.lexeme_, env_->get(capture));
+
+    env_->define(stat.name_.lexeme_, std::make_shared<AstInterpreter::UserFunction>(&stat, local));
 }
 
 void AstInterpreter::visitReturnStat(AstStatReturn& stat) {
@@ -475,17 +482,15 @@ Runtime::Value AstInterpreter::UserFunction::call(int line, AstInterpreter& inte
     if (decl_->paramNames_.size() != arguments.size())
         throw RuntimeError(line, "Function '" + decl_->name_.lexeme_ + "' expected " + std::to_string(decl_->paramNames_.size()) + " argument(s), but got " + std::to_string(arguments.size()) + ".");
 
-    EnvironmentPtr env = std::make_shared<Environment>(closure_);
-    for (size_t i = 0; i < decl_->paramNames_.size(); i++) {
-        env->define(decl_->paramNames_.at(i).lexeme_, arguments.at(i));
-    }
+    for (size_t i = 0; i < decl_->paramNames_.size(); i++)
+        closure_->define(decl_->paramNames_.at(i).lexeme_, arguments.at(i));
 
     AstStatBlock* bodyBlock = dynamic_cast<AstStatBlock*>(decl_->body_.get());
     if (!bodyBlock)
         throw RuntimeError(line, "[Internal Compiler Error]: Function body is not a block statement.");
 
     try {
-        interpreter.executeBlocK(bodyBlock->body_, env);
+        interpreter.executeBlocK(bodyBlock->body_, closure_);
     } catch (ReturnSignal returnSig) {
         return returnSig.value_;
     }
