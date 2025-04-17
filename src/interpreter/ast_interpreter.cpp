@@ -73,9 +73,8 @@ AstInterpreter::AstInterpreter(Utils::ErrorHandler& errorHandler)
 void AstInterpreter::interpret(const std::vector<AstStatPtr>& statements) {
     try {
         for (const AstStatPtr& stat : statements) {
-            if (!stat) {
-                throw InternalCompilerError("[Internal Compiler Error]: nullptr statement in AST list.");
-            }
+            if (!stat) throw InternalCompilerError("[Internal Compiler Error]: nullptr statement in AST list.");
+
             execute(*stat);
         }
     } catch (RuntimeError error) {
@@ -403,6 +402,8 @@ void AstInterpreter::visitWhileStat(AstStatWhile &stat) {
 }
 
 void AstInterpreter::visitForStat(AstStatFor& stat) {
+    EnvironmentGuard guard(env_, std::make_shared<Environment>(env_));
+
     if (stat.initializer_ != nullptr)
         execute(*stat.initializer_);
 
