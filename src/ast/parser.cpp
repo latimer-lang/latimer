@@ -505,7 +505,7 @@ Token Parser::consume(std::initializer_list<TokenType> types, std::string msg) {
 }
 
 ParseError Parser::error(const Token& token, const std::string& msg) {
-    errorHandler_.error(token, msg);
+    errorHandler_.parseError(token, msg);
     return ParseError(msg);
 }
 

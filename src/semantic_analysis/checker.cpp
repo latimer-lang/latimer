@@ -86,9 +86,9 @@ void Checker::check(const std::vector<AstStatPtr> &statements) {
             checkStat(*stat);
         }
     } catch (TypeError error) {
-        errorHandler_.error(error.line_, error.what());
+        errorHandler_.typeError(error);
     } catch (LogicError error) {
-        errorHandler_.error(error.line_, error.what());
+        errorHandler_.logicError(error);
     } catch (InternalCompilerError error) {
         std::cerr << error.what() << std::endl;
     }
