@@ -19,6 +19,9 @@ private:
     int current_;
     Utils::ErrorHandler& errorHandler_;
 
+    AstTypePtr type();
+    AstTypePtr funcTypeTail(AstTypePtr returnType);
+
     AstExprPtr expression();
     AstExprPtr assignment();
     AstExprPtr ternary();
@@ -36,8 +39,8 @@ private:
     AstStatPtr declaration();
     AstStatPtr statement();
     AstStatPtr varDeclStat();
-    AstStatPtr varDeclStat(Token type, Token name);
-    AstStatPtr funcDeclStat(Token type, Token name);
+    AstStatPtr varDeclStat(AstTypePtr declType, Token name);
+    AstStatPtr funcDeclStat(AstTypePtr declType, Token name);
     AstStatPtr exprStat();
     AstStatPtr ifElseStat();
     AstStatPtr whileStat();
@@ -48,7 +51,7 @@ private:
     AstStatPtr blockStat();
 
     bool match(std::initializer_list<TokenType> types);
-    bool check(TokenType type);
+    bool check(std::initializer_list<TokenType> types);
     Token advance();
     bool isAtFront();
     bool isAtEnd();

@@ -22,12 +22,12 @@ program        → declaration* END_OF_FILE
 declaration    → varDeclStat
                | funcDeclStat
                | statement
-funcDeclStat   → ( varType | "void" ) IDENTIFIER "[" captureList? "]" "(" funcArgs? ")" block
+funcDeclStat   → type IDENTIFIER "[" captureList? "]" "(" funcArgs? ")" block
 captureList    → IDENTIFIER ( "," IDENTIFIER )*
-funcArgs       → funcArg ( "," funcArg )*
-funcArg        → varType IDENTIFIER
-varDeclStat    → varType IDENTIFIER ( "=" expression )? ";"
-varType        → "bool" | "int" | "double" | "char" | "string"
+funcArgs       → type IDENTIFIER ( "," type IDENTIFIER )*
+varDeclStat    → type IDENTIFIER ( "=" expression )? ";"
+type           → ( "bool" | "int" | "double" | "char" | "string" | "void" ) funcTypeTail?
+funcTypeTail   → "(" ( type ( "," type )* )? ")"
 statement      → exprStat
                | ifStat
                | whileStat

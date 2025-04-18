@@ -11,6 +11,7 @@
 #include <latimer/utils/error_handler.hpp>
 #include <latimer/ast/parser.hpp>
 #include <latimer/interpreter/ast_interpreter.hpp>
+#include <latimer/semantic_analysis/checker.hpp>
 
 void runRepl() {
     // TODO: implement
@@ -27,15 +28,19 @@ void runFile(std::string filePath) {
     buf << file.rdbuf();
 
     Utils::ErrorHandler errorHandler;
-    AstInterpreter interpreter(errorHandler);
-
+    
     Lexer lexer = Lexer(buf.str(), errorHandler);
     std::vector<Token> tokens = lexer.scanTokens();
-
+    
     Parser parser = Parser(tokens, errorHandler);
     std::vector<AstStatPtr> statements = parser.parse();
     if (errorHandler.hadError_) std::exit(65);
 
+    Checker checker = Checker(errorHandler);
+    checker.check(statements);
+    if (errorHandler.hadError_) std::exit(65);
+    
+    AstInterpreter interpreter(errorHandler);
     interpreter.interpret(statements);
     if (errorHandler.hadRuntimeError_) std::exit(70);
 }

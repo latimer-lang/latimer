@@ -59,6 +59,10 @@ private:
 
     void execute(AstStat& stat);
     Runtime::Value evaluate(AstExpr& expr);
+
+    void visitPrimitiveType(AstTypePrimitive& type) override;
+    void visitFunctionType(AstTypeFunction& type) override;
+
     void visitGroupExpr(AstExprGroup& expr) override;
     void visitUnaryExpr(AstExprUnary& expr) override;
     void visitBinaryExpr(AstExprBinary& expr) override;

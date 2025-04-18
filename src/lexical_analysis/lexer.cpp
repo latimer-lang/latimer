@@ -76,7 +76,7 @@ char Lexer::peek() {
 
 void Lexer::character() {
     if (isAtEnd()) {
-        errorHandler_.error(line_, "Unterminated character literal.");
+        errorHandler_.parseError(line_, "Unterminated character literal.");
         return;
     }
 
@@ -84,7 +84,7 @@ void Lexer::character() {
 
     if (c == '\\') {
         if (isAtEnd()) {
-            errorHandler_.error(line_, "Unterminated escape sequence in character literal.");
+            errorHandler_.parseError(line_, "Unterminated escape sequence in character literal.");
             return;
         }
 
@@ -121,13 +121,13 @@ void Lexer::character() {
                 c = '\\';
                 break;
             default:
-                errorHandler_.error(line_, std::string("Unknown escape character: \\") + esc);
+                errorHandler_.parseError(line_, std::string("Unknown escape character: \\") + esc);
                 return;
         }
     }
 
     if (peek() != '\'') {
-        errorHandler_.error(line_, "Character literal must be a single character.");
+        errorHandler_.parseError(line_, "Character literal must be a single character.");
         return;
     }
 
@@ -143,7 +143,7 @@ void Lexer::string() {
     }
 
     if (isAtEnd()) {
-        errorHandler_.error(line_, "Unterminated string.");
+        errorHandler_.parseError(line_, "Unterminated string.");
         return;
     }
 
@@ -300,7 +300,7 @@ void Lexer::scanToken() {
                 }
 
                 if (isAtEnd()) {
-                    errorHandler_.error(line_, "Unterminated multi-line comment.");
+                    errorHandler_.parseError(line_, "Unterminated multi-line comment.");
                 }
             }
             else
@@ -325,7 +325,7 @@ void Lexer::scanToken() {
             else if (isAlpha(c))
                 identifier();
             else
-                errorHandler_.error(line_, "Unexpected character.");
+                errorHandler_.parseError(line_, "Unexpected character.");
             break;
     }
 }

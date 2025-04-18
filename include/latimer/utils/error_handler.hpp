@@ -10,6 +10,24 @@ public:
         : std::runtime_error(msg) {}
 };
 
+class LogicError : public std::runtime_error {
+public:
+    int line_;
+
+    explicit LogicError(int line, const std::string& msg)
+        : std::runtime_error(msg)
+        , line_(line) {}
+};
+
+class TypeError : public std::runtime_error {
+public:
+    int line_;
+
+    explicit TypeError(int line, const std::string& msg)
+        : std::runtime_error(msg)
+        , line_(line) {}
+};
+
 class RuntimeError : public std::runtime_error {
 public:
     int line_;
@@ -42,19 +60,29 @@ public:
         hadError_ = true;
     }
 
-    void error(const Token& token, const std::string& msg) {
+    void parseError(const Token& token, const std::string& msg) {
         if (token.type_ == TokenType::END_OF_FILE)
             report(token.line_, " at end of file", msg);
         else
             report(token.line_, " at '" + token.lexeme_ + "'", msg);
     }
 
-    void error(int line, const std::string& msg) {
+    void parseError(int line, const std::string& msg) {
         report(line, "", msg);
     }
 
+    void logicError(LogicError error) {
+        std::cerr << "[line " << error.line_ << "] Logic Error: " << error.what() << std::endl;
+        hadRuntimeError_ = true;
+    }
+
+    void typeError(TypeError error) {
+        std::cerr << "[line " << error.line_ << "] Type Error: " << error.what() << std::endl;
+        hadRuntimeError_ = true;
+    }
+
     void runtimeError(RuntimeError error) {
-        std::cerr << "[line " << error.line_ << "] Error: " << error.what() << std::endl;
+        std::cerr << "[line " << error.line_ << "] Runtime Error: " << error.what() << std::endl;
         hadRuntimeError_ = true;
     }
 };
