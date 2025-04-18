@@ -1,0 +1,77 @@
+name: Build & Release Latimer
+
+on:
+  push:
+    tags: ['v*']            # e.g. v1.0.0, v0.9.2
+  release:
+    types: [published]     # fires only when “Publish release” is clicked
+  workflow_dispatch: 
+
+permissions:
+  contents: write           # needed to create / update the release
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v4
+
+    - name: Install CMake ≥ 3.31
+      uses: jwlawson/actions-setup-cmake@v2    # :contentReference[oaicite:0]{index=0}
+      with:
+        cmake-version: '3.31.x'
+
+    - name: Extra build deps (Linux)
+      if: runner.os == 'Linux'
+      run: sudo apt-get update && sudo apt-get install -y build-essential ninja-build
+
+    # Ninja is already present on macOS and Windows runners
+
+    - name: Configure (CMake)
+      run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build (CMake)
+      run: cmake --build build --parallel
+
+    - name: Package binary
+      shell: bash
+      run: |
+        pkgdir="${{ github.workspace }}/dist"
+        mkdir -p "$pkgdir"
+        case "${{ runner.os }}" in
+          Linux)   cp build/latimer      "$pkgdir/latimer-${{ github.ref_name }}-linux-x86_64" ;;
+          macOS)   cp build/latimer      "$pkgdir/latimer-${{ github.ref_name }}-macos-universal" ;;
+          Windows) cp build/latimer.exe  "$pkgdir/latimer-${{ github.ref_name }}-windows-amd64.exe" ;;
+        esac
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: latimer-${{ runner.os }}
+        path: dist/*
+
+  release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Download all build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: collected
+
+    - name: Create / update release and attach assets
+      uses: softprops/action-gh-release@v1      # :contentReference[oaicite:1]{index=1}
+      with:
+        files: collected/**/*
+        draft: false           # flip to true if you prefer a draft first
+        prerelease: false      # flip to true for betas / RCs
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
