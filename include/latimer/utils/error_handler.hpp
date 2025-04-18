@@ -3,11 +3,30 @@
 #include <iostream>
 
 #include <latimer/lexical_analysis/token.hpp>
+#include <stdexcept>
 
 class ParseError : public std::runtime_error {
 public:
     explicit ParseError(const std::string& msg)
-        : std::runtime_error(msg) {}
+        : std::runtime_error("[Parsing Error] " + msg) {}
+};
+
+class LogicError : public std::runtime_error {
+public:
+    int line_;
+
+    explicit LogicError(int line, const std::string& msg)
+        : std::runtime_error("[Logic Error] " + msg)
+        , line_(line) {}
+};
+
+class TypeError : public std::runtime_error {
+public:
+    int line_;
+
+    explicit TypeError(int line, const std::string& msg)
+        : std::runtime_error("[Type Error] " + msg)
+        , line_(line) {}
 };
 
 class RuntimeError : public std::runtime_error {
@@ -15,7 +34,7 @@ public:
     int line_;
 
     explicit RuntimeError(int line, const std::string& msg)
-        : std::runtime_error(msg)
+        : std::runtime_error("[Runtime Error] " + msg)
         , line_(line) {}
 };
 

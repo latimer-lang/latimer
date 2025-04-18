@@ -9,6 +9,9 @@
 - [ ] wtf is going on w/ `1 < 3 : 4 ? 2`
 - [ ] Modularize runtime values and token values separately, maybe put the values in the context of parser
 - [ ] Allow forward declaration of functions and structs
+- [ ] make repl more efficient by not making it need to redeclare parser and lexer on every input
+- [ ] create a testing framework
+- [ ] clean up code! remove redundant checks from checker to interpreter, move value cpp, create new file for the env, use references more often and const, etc
 
 ### Lexical Analysis
 - [x] build error handler

@@ -19,6 +19,41 @@ std::vector<AstStatPtr> Parser::parse() {
     return statements; // Note: return-value optimization (RVO) uses move semantics here. so vector unique ptr is not copied, and thus keeping things safe
 }
 
+AstTypePtr Parser::type() {
+    if (!check({TokenType::BOOL_TY, TokenType::INT_TY, TokenType::DOUBLE_TY, TokenType::CHAR_TY, TokenType::STRING_TY, TokenType::VOID_TY}))
+        throw error(peek(), "Expect a type of either 'bool', 'char', 'string', 'int', 'double', or 'void'.");
+
+    AstTypePtr returnType = nullptr;
+    if (match({TokenType::BOOL_TY})) returnType = std::make_unique<AstTypePrimitive>(previous().line_, AstTypePrimitive::PrimitiveKind::BOOL);
+    if (match({TokenType::INT_TY})) returnType = std::make_unique<AstTypePrimitive>(previous().line_, AstTypePrimitive::PrimitiveKind::INT);
+    if (match({TokenType::DOUBLE_TY})) returnType = std::make_unique<AstTypePrimitive>(previous().line_, AstTypePrimitive::PrimitiveKind::DOUBLE);
+    if (match({TokenType::CHAR_TY})) returnType = std::make_unique<AstTypePrimitive>(previous().line_, AstTypePrimitive::PrimitiveKind::CHAR);
+    if (match({TokenType::STRING_TY})) returnType = std::make_unique<AstTypePrimitive>(previous().line_, AstTypePrimitive::PrimitiveKind::STRING);
+    if (match({TokenType::VOID_TY})) returnType = std::make_unique<AstTypePrimitive>(previous().line_, AstTypePrimitive::PrimitiveKind::VOID);
+    
+    if (returnType == nullptr) throw error(previous(), "Invalid type.");
+
+    // Check if it's a function type
+    if (check({TokenType::LEFT_PAREN}))
+        return funcTypeTail(std::move(returnType));
+
+    return returnType;
+}
+
+AstTypePtr Parser::funcTypeTail(AstTypePtr returnType) {
+    consume(TokenType::LEFT_PAREN, "Expect '(' after function return type.");
+    
+    std::vector<AstTypePtr> paramTypes;
+    if (!check({TokenType::RIGHT_PAREN})) {
+        do {
+            paramTypes.push_back(std::move(type()));
+        } while (match({TokenType::COMMA}));
+    }
+
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after function type parameters.");
+    return std::make_unique<AstTypeFunction>(returnType->line_, std::move(returnType), std::move(paramTypes));
+}
+
 AstExprPtr Parser::expression() {
     return assignment();
 }
@@ -35,7 +70,7 @@ AstExprPtr Parser::assignment() {
             return std::make_unique<AstExprAssignment>(varExpr->line_, name, std::move(value));
         }
 
-        error(equals, "Invalid lvalue for an assignment.");
+        throw error(equals, "Invalid lvalue for an assignment.");
     }
 
     return expr;
@@ -160,11 +195,10 @@ AstExprPtr Parser::call() {
             int line = previous().line_;
 
             std::vector<AstExprPtr> args;
-            if (!check(TokenType::RIGHT_PAREN)) {
+            if (!check({TokenType::RIGHT_PAREN})) {
                 do {
-                    if (args.size() >= 255) {
-                        errorHandler_.error(peek(), "Function call can't have more than 254 arguments.");
-                    }
+                    if (args.size() >= 255) throw error(peek(), "Function call can't have more than 254 arguments.");
+
                     args.push_back(expression());
                 } while (match({TokenType::COMMA}));
             }
@@ -219,16 +253,15 @@ AstExprPtr Parser::primary() {
 
 AstStatPtr Parser::declaration() {
     try {
-        if (match({TokenType::BOOL_TY, TokenType::INT_TY, TokenType::DOUBLE_TY, TokenType::CHAR_TY, TokenType::STRING_TY, TokenType::VOID_TY})) {
-            Token declType = previous();
-            Token declName = consume(TokenType::IDENTIFIER, "Expect variable name after declaration type.");
+        if (check({TokenType::BOOL_TY, TokenType::INT_TY, TokenType::DOUBLE_TY, TokenType::CHAR_TY, TokenType::STRING_TY, TokenType::VOID_TY})) {
+            AstTypePtr declType = type();
+            Token declName = consume(TokenType::IDENTIFIER, "Expect a name after declaration type.");
             
             // Parsing function declarations
-            if (check(TokenType::LEFT_BRACKET))
-                return funcDeclStat(declType, declName);
+            if (check({TokenType::LEFT_BRACKET}))
+                return funcDeclStat(std::move(declType), declName);
             
-            // Parsing variable declarations
-            return varDeclStat(declType, declName);
+            return varDeclStat(std::move(declType), declName);
         }
         
         return statement();
@@ -258,25 +291,25 @@ AstStatPtr Parser::statement() {
 }
 
 AstStatPtr Parser::varDeclStat() {
-    Token declType = previous();
+    AstTypePtr declType = type();
     Token declName = consume(TokenType::IDENTIFIER, "Expect variable name after declaration type.");
 
-    return varDeclStat(declType, declName);
+    return varDeclStat(std::move(declType), declName);
 }
 
-AstStatPtr Parser::varDeclStat(Token type, Token name) {
+AstStatPtr Parser::varDeclStat(AstTypePtr declType, Token name) {
     AstExprPtr initializer = nullptr;
     if (match({TokenType::EQUAL}))
         initializer = expression();
 
     consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
-    return std::make_unique<AstStatVarDecl>(type.line_, type, name, std::move(initializer));
+    return std::make_unique<AstStatVarDecl>(declType->line_, std::move(declType), name, std::move(initializer));
 }
 
-AstStatPtr Parser::funcDeclStat(Token type, Token name) {
+AstStatPtr Parser::funcDeclStat(AstTypePtr declType, Token name) {
     consume(TokenType::LEFT_BRACKET, "Expect '[' after function name to begin capture list.");
     std::vector<Token> captures;
-    if (!check(TokenType::RIGHT_BRACKET)) {
+    if (!check({TokenType::RIGHT_BRACKET})) {
         do {
             Token capture = consume(TokenType::IDENTIFIER, "Expect an identifier for capture #" + std::to_string(captures.size()) + ".");
             captures.push_back(capture);
@@ -285,17 +318,15 @@ AstStatPtr Parser::funcDeclStat(Token type, Token name) {
     consume(TokenType::RIGHT_BRACKET, "Expect ']' after the capture list.");
 
     consume(TokenType::LEFT_PAREN, "Expect '(' to begin parameter list.");
-    std::vector<Token> paramTypes;
+    std::vector<AstTypePtr> paramTypes;
     std::vector<Token> paramNames;
 
-    if (!check(TokenType::RIGHT_PAREN)) {
+    if (!check({TokenType::RIGHT_PAREN})) {
         do {
-            if (paramTypes.size() >= 255 || paramNames.size() >= 255) {
-                error(peek(), "Can't have more than 255 parameters.");
-            }
+            if (paramTypes.size() >= 255 || paramNames.size() >= 255) throw error(peek(), "Can't have more than 255 parameters.");
 
-            Token paramType = consume({TokenType::BOOL_TY, TokenType::INT_TY, TokenType::DOUBLE_TY, TokenType::CHAR_TY, TokenType::STRING_TY}, "Expect parameter type for argument " + std::to_string(paramTypes.size()));
-            paramTypes.push_back(paramType);
+            AstTypePtr paramType = type();
+            paramTypes.push_back(std::move(paramType));
             Token paramName = consume(TokenType::IDENTIFIER, "Expect parameter name for argument " + std::to_string(paramNames.size()));
             paramNames.push_back(paramName);
         } while (match({TokenType::COMMA}));
@@ -305,7 +336,7 @@ AstStatPtr Parser::funcDeclStat(Token type, Token name) {
     consume(TokenType::LEFT_BRACE, "Expect '{' before function body.");
     AstStatPtr body = blockStat();
 
-    return std::make_unique<AstStatFuncDecl>(type.line_, type, name, std::move(captures), std::move(paramTypes), std::move(paramNames), std::move(body));
+    return std::make_unique<AstStatFuncDecl>(declType->line_, std::move(declType), name, std::move(captures), std::move(paramTypes), std::move(paramNames), std::move(body));
 }
 
 AstStatPtr Parser::exprStat() {
@@ -353,18 +384,18 @@ AstStatPtr Parser::forStat() {
     AstStatPtr initializer;
     if (match({TokenType::SEMICOLON}))
         initializer = nullptr;
-    else if (match({TokenType::BOOL_TY, TokenType::INT_TY, TokenType::DOUBLE_TY, TokenType::CHAR_TY, TokenType::STRING_TY}))
+    else if (check({TokenType::BOOL_TY, TokenType::INT_TY, TokenType::DOUBLE_TY, TokenType::CHAR_TY, TokenType::STRING_TY}))
         initializer = varDeclStat();
     else
         initializer = exprStat();
 
     AstExprPtr condition = nullptr;
-    if (!check(TokenType::SEMICOLON))
+    if (!check({TokenType::SEMICOLON}))
         condition = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after loop condition.");
 
     AstExprPtr increment = nullptr;
-    if (!check(TokenType::RIGHT_PAREN))
+    if (!check({TokenType::RIGHT_PAREN}))
       increment = expression();
 
     consume(TokenType::RIGHT_PAREN, "Expect ')' to close for loop clause.");
@@ -393,7 +424,7 @@ AstStatPtr Parser::returnStat() {
     Token returnToken = previous();
 
     AstExprPtr value = nullptr;
-    if (!check(TokenType::SEMICOLON))
+    if (!check({TokenType::SEMICOLON}))
         value = expression();
 
     consume(TokenType::SEMICOLON, "Expect ';' after return statement.");
@@ -405,7 +436,7 @@ AstStatPtr Parser::blockStat() {
     Token leftBrace = previous();
     std::vector<AstStatPtr> body;
 
-    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd())
+    while (!check({TokenType::RIGHT_BRACE}) && !isAtEnd())
         body.push_back(declaration());
     
     consume(TokenType::RIGHT_BRACE, "Expect '}' to terminate block statements.");
@@ -414,7 +445,7 @@ AstStatPtr Parser::blockStat() {
 
 bool Parser::match(std::initializer_list<TokenType> types) {
     for (TokenType type : types) {
-        if (check(type)) {
+        if (check({type})) {
             advance();
             return true;
         }
@@ -423,9 +454,13 @@ bool Parser::match(std::initializer_list<TokenType> types) {
     return false;
 }
 
-bool Parser::check(TokenType type) {
+bool Parser::check(std::initializer_list<TokenType> types) {
     if (isAtEnd()) return false;
-    return peek().type_ == type;
+
+    for (TokenType type : types) 
+        if (peek().type_ == type) return true;
+    
+    return false;
 }
 
 Token Parser::advance() {
@@ -450,7 +485,7 @@ Token Parser::previous() {
 }
 
 Token Parser::consume(TokenType type, std::string msg) {
-    if (check(type)) return advance();
+    if (check({type})) return advance();
 
     Token errToken = peek();
     if (!isAtFront())
@@ -460,7 +495,7 @@ Token Parser::consume(TokenType type, std::string msg) {
 
 Token Parser::consume(std::initializer_list<TokenType> types, std::string msg) {
     for (TokenType type : types) {
-        if (check(type)) return advance();
+        if (check({type})) return advance();
     }
 
     Token errToken = peek();

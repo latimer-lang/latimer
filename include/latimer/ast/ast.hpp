@@ -16,6 +16,52 @@ class AstNode {
         : line_(line) {}
 };
 
+class AstType;
+using AstTypePtr = std::unique_ptr<AstType>;
+
+class AstType : public AstNode {
+public:
+    explicit AstType(int line)
+        : AstNode(line) {}
+
+    virtual ~AstType() = default;
+
+    virtual void accept(AstVisitor& visitor) = 0;
+};
+
+class AstTypePrimitive : public AstType {
+public:
+    enum PrimitiveKind {
+        BOOL,
+        INT,
+        DOUBLE,
+        STRING,
+        CHAR,
+        VOID
+    };
+    
+    PrimitiveKind kind_;
+
+    explicit AstTypePrimitive(int line, PrimitiveKind kind)
+        : AstType(line)
+        , kind_(kind) {}
+
+    void accept(AstVisitor& visitor) override;
+};
+
+class AstTypeFunction : public AstType {
+public:
+    AstTypePtr returnType;
+    std::vector<AstTypePtr> paramTypes;
+
+    explicit AstTypeFunction(int line, AstTypePtr returnType, std::vector<AstTypePtr> paramTypes)
+        : AstType(line)
+        , returnType(std::move(returnType))
+        , paramTypes(std::move(paramTypes)) {}
+
+    void accept(AstVisitor& visitor) override;
+};
+
 class AstExpr;
 using AstExprPtr = std::unique_ptr<AstExpr>;
 
@@ -199,13 +245,13 @@ public:
 
 class AstStatVarDecl : public AstStat {
 public:
-    Token type_;
+    AstTypePtr type_;
     Token name_;
     AstExprPtr initializer_;
 
-    explicit AstStatVarDecl(int line, Token type, Token name, AstExprPtr initializer)
+    explicit AstStatVarDecl(int line, AstTypePtr type, Token name, AstExprPtr initializer)
         : AstStat(line)
-        , type_(type)
+        , type_(std::move(type))
         , name_(name)
         , initializer_(std::move(initializer)) {}
 
@@ -297,19 +343,19 @@ public:
 
 class AstStatFuncDecl : public AstStat {
 public:
-    Token returnType_;
+    AstTypePtr returnType_;
     Token name_;
     std::vector<Token> captures_;
-    std::vector<Token> paramTypes_;
+    std::vector<AstTypePtr> paramTypes_;
     std::vector<Token> paramNames_;
     AstStatPtr body_;
 
-    explicit AstStatFuncDecl(int line, Token returnType, Token name, std::vector<Token> captures, std::vector<Token> paramTypes, std::vector<Token> paramNames, AstStatPtr body)
+    explicit AstStatFuncDecl(int line, AstTypePtr returnType, Token name, std::vector<Token> captures, std::vector<AstTypePtr> paramTypes, std::vector<Token> paramNames, AstStatPtr body)
         : AstStat(line)
-        , returnType_(returnType)
+        , returnType_(std::move(returnType))
         , name_(name)
         , captures_(captures)
-        , paramTypes_(paramTypes)
+        , paramTypes_(std::move(paramTypes))
         , paramNames_(paramNames)
         , body_(std::move(body)) {}
 
@@ -330,6 +376,9 @@ public:
 class AstVisitor {
 public:
     ~AstVisitor() = default;
+
+    virtual void visitPrimitiveType(AstTypePrimitive& type) = 0;
+    virtual void visitFunctionType(AstTypeFunction& type) = 0;
 
     virtual void visitGroupExpr(AstExprGroup& expr) = 0;
     virtual void visitUnaryExpr(AstExprUnary& expr) = 0;

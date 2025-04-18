@@ -1,5 +1,13 @@
 #include <latimer/ast/ast.hpp>
 
+void AstTypePrimitive::accept(AstVisitor& visitor) {
+    visitor.visitPrimitiveType(*this);
+}
+
+void AstTypeFunction::accept(AstVisitor& visitor) {
+    visitor.visitFunctionType(*this);
+}
+
 void AstExprGroup::accept(AstVisitor& visitor) {
     visitor.visitGroupExpr(*this);
 }
