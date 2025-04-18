@@ -73,12 +73,12 @@ public:
 
     void logicError(LogicError error) {
         std::cerr << "[line " << error.line_ << "] Logic Error: " << error.what() << std::endl;
-        hadRuntimeError_ = true;
+        hadError_ = true;
     }
 
     void typeError(TypeError error) {
         std::cerr << "[line " << error.line_ << "] Type Error: " << error.what() << std::endl;
-        hadRuntimeError_ = true;
+        hadError_ = true;
     }
 
     void runtimeError(RuntimeError error) {
