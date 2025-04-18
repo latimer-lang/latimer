@@ -449,11 +449,14 @@ void AstInterpreter::visitBlockStat(AstStatBlock& stat) {
 }
 
 void AstInterpreter::visitFuncDeclStat(AstStatFuncDecl& stat) {
-    EnvironmentPtr local = std::make_shared<Environment>();
+    EnvironmentPtr closure = std::make_shared<Environment>();
     for (auto capture : stat.captures_)
-        local->define(capture.lexeme_, env_->get(capture));
+        closure->define(capture.lexeme_, env_->get(capture));
 
-    env_->define(stat.name_.lexeme_, std::make_shared<AstInterpreter::UserFunction>(&stat, local));
+    std::shared_ptr<AstInterpreter::UserFunction> fn = std::make_shared<AstInterpreter::UserFunction>(&stat, closure);
+    
+    closure->define(stat.name_.lexeme_, fn);
+    env_->define(stat.name_.lexeme_, fn);
 }
 
 void AstInterpreter::visitReturnStat(AstStatReturn& stat) {
@@ -491,16 +494,18 @@ size_t AstInterpreter::UserFunction::arity() const {
 Runtime::Value AstInterpreter::UserFunction::call(int line, AstInterpreter& interpreter, const std::vector<Runtime::Value>& arguments) {
     if (decl_->paramNames_.size() != arguments.size())
         throw RuntimeError(line, "Function '" + decl_->name_.lexeme_ + "' expected " + std::to_string(decl_->paramNames_.size()) + " argument(s), but got " + std::to_string(arguments.size()) + ".");
+    
+    EnvironmentPtr localEnv = std::make_shared<Environment>(closure_);
 
     for (size_t i = 0; i < decl_->paramNames_.size(); i++)
-        closure_->define(decl_->paramNames_.at(i).lexeme_, arguments.at(i));
+        localEnv->define(decl_->paramNames_.at(i).lexeme_, arguments.at(i));
 
     AstStatBlock* bodyBlock = dynamic_cast<AstStatBlock*>(decl_->body_.get());
     if (!bodyBlock)
         throw RuntimeError(line, "[Internal Compiler Error]: Function body is not a block statement.");
 
     try {
-        interpreter.executeBlocK(bodyBlock->body_, closure_);
+        interpreter.executeBlocK(bodyBlock->body_, localEnv);
     } catch (ReturnSignal returnSig) {
         return returnSig.value_;
     }
