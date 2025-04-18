@@ -284,9 +284,9 @@ void Lexer::scanToken() {
             addToken(match('|') ? TokenType::PIPE_PIPE : TokenType::PIPE);
             break;
         case '/':
-            if (match('/')) // Ignore single-line comments
+            if (match('/')) { // Ignore single-line comments
                 while (peek() != '\n' && !isAtEnd()) advance();
-            if (match('*')) {
+            } else if (match('*')) {
                 // Ignore multi-line comments
                 while (!isAtEnd()) {
                     if (peek() == '*' && peekNext() == '/') {
@@ -302,9 +302,9 @@ void Lexer::scanToken() {
                 if (isAtEnd()) {
                     errorHandler_.parseError(line_, "Unterminated multi-line comment.");
                 }
-            }
-            else
+            } else {
                 addToken(TokenType::SLASH);
+            }
             break;
         case ' ':  // Ignore whitespaces
         case '\r': // Ignore whitespaces
