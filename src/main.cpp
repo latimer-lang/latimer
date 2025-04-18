@@ -13,22 +13,7 @@
 #include <latimer/interpreter/ast_interpreter.hpp>
 
 void runRepl() {
-    Utils::ErrorHandler errorHandler;
-    AstInterpreter interpreter(errorHandler);
-    std::string input;
-
-    while (true) {
-        std::cout << "> ";
-        std::getline(std::cin, input);
-
-        Lexer lexer = Lexer(input, errorHandler);
-        std::vector<Token> tokens = lexer.scanTokens();
-
-        Parser parser = Parser(tokens, errorHandler);
-        std::vector<AstStatPtr> statements = parser.parse();
-
-        interpreter.interpret(statements);
-    }
+    // TODO: implement
 }
 
 void runFile(std::string filePath) {
