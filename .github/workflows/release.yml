@@ -39,15 +39,22 @@ jobs:
     - name: Build (CMake)
       run: cmake --build build --parallel
 
-    - name: Package binary
+    - name: Collect renamed binary
       shell: bash
       run: |
-        pkgdir="${{ github.workspace }}/dist"
-        mkdir -p "$pkgdir"
+        mkdir -p dist
         case "${{ runner.os }}" in
-          Linux)   cp build/latimer      "$pkgdir/latimer-${{ github.ref_name }}-linux-x86_64" ;;
-          macOS)   cp build/latimer      "$pkgdir/latimer-${{ github.ref_name }}-macos-universal" ;;
-          Windows) cp build/latimer.exe  "$pkgdir/latimer-${{ github.ref_name }}-windows-amd64.exe" ;;
+          Linux)
+            chmod +x build/latimer
+            cp build/latimer dist/latimer-ubuntu
+            ;;
+          macOS)
+            chmod +x build/latimer
+            cp build/latimer dist/latimer-macos
+            ;;
+          Windows)
+            powershell -Command "Copy-Item build\\latimer.exe dist\\latimer-windows.exe"
+            ;;
         esac
 
     - name: Upload build artifact
