@@ -379,8 +379,10 @@ void Checker::visitTernaryExpr(AstExprTernary& expr) {
     TypePtr thenBranchType = checkExpr(*expr.thenBranch_);
     TypePtr elseBranchType = checkExpr(*expr.elseBranch_);
 
-    UnionType unionType({std::move(thenBranchType), std::move(elseBranchType)});
-    result_ = std::make_shared<Type>(unionType);
+    if (!thenBranchType->subtypeOf(*elseBranchType) || !elseBranchType->subtypeOf(*thenBranchType))
+        throw TypeError(expr.line_, "Ternary branches must return the same type, but got '" + thenBranchType->toString() + "' and '" + elseBranchType->toString() + "'.");
+
+    result_ = std::make_shared<Type>(elseBranchType->type_);
 }
 
 void Checker::visitLiteralNullExpr(AstExprLiteralNull& expr) {

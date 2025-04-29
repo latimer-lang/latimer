@@ -37,6 +37,7 @@ struct FunctionType {
     bool subtypeOf(const FunctionType& other) const;
 };
 
+// Used for argument of print native function
 struct UnionType {
     std::vector<TypePtr> options_;
 
